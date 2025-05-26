@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工作统计报告表</title>
+    <title>工资计算器</title>
     <style>
         :root {
         --primary-color: #2196F3;    /* 深蓝 */
@@ -335,11 +335,11 @@
 </head>
 <body>
             <div class="container">
-        <h1 class="page-title">工作打卡智能工资计算器</h1>
+        <h1 class="page-title">工资计算器</h1>
 
         <div class="mode-switch">
             <button class="mode-btn active" onclick="switchMode('month')">按月计算</button>
-            <button class="mode-btn" onclick="switchMode('custom')">自定义日期</button>
+            <button class="mode-btn" onclick="switchMode('custom')">自定义日期计算</button>
         </div>
 
         <div class="date-controls active" id="monthControl">
@@ -357,7 +357,7 @@
         <div class="modal-overlay" id="customModal">
             <div class="edit-modal">
                 <input type="text" id="customName" placeholder="费用名称（如：支取）">
-                <input type="number" id="customAmount" placeholder="金额（可正可负）">
+                <input type="number" id="customAmount" placeholder="金额（如：100/-100）">
                 <button onclick="addCustomExpense()">添加费用</button>
             </div>
         </div>
@@ -401,12 +401,12 @@
             <div id="customExpensesContainer"></div>
 
             <div class="stat-item total-sum">
-                <span>共计总额：</span>
+                <span>合计总额：</span>
                 <div class="stat-value">
                     <span id="netIncome">0.00</span> 元
                 </div>
             </div>
-            <button class="reset-btn" onclick="resetData()">重置所有数据</button>
+            <button class="reset-btn" onclick="resetData()">清除所有数据</button>
         </div>
 
         <div class="modal-overlay" id="editModal">
