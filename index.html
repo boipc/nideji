@@ -334,7 +334,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+            <div class="container">
         <h1 class="page-title">智能工资计算器</h1>
 
         <div class="mode-switch">
@@ -367,7 +367,7 @@
                 <span>日工单价：</span>
                 <div class="stat-value">
                     <div class="wage-input-group">
-                        <input type="text" id="dailyWageInput" value="400元">
+                        <input type="text" id="dailyWageInput" value="350元">
                         <button class="add-custom-btn" onclick="showCustomModal()">+</button>
                     </div>
                 </div>
@@ -629,7 +629,7 @@
                 localStorage.clear();
                 records = {};
                 customExpenses = [];
-                document.getElementById('dailyWageInput').value = '400元';
+                document.getElementById('dailyWageInput').value = '350元';
                 generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
                 renderCustomExpenses();
                 calculateStats();
