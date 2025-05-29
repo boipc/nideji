@@ -179,16 +179,56 @@
             </div>
         </div>
         <div class="stat-item">
-            <span>工作日期：</span>
-            <div class="stat-value" style="display: flex; align-items: center; gap: 10px;">
-                <button class="nav-btn" id="workPrevMonth">&lt;</button>
-                <span id="workDateRange">2025年05月</span>
-                <button class="nav-btn" id="workNextMonth">&gt;</button>
+               <span>工作日期：</span>
+                <div class="stat-value">
+                    <span id="workDateRange">-</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span>工作天数：</span>
+                <div class="stat-value">
+                    <span id="workDays">0</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <span>工资总额：</span>
+                <div class="stat-value">
+                    <span id="totalSalary">0.00</span> 元
+                </div>
+            </div>
+            <div class="stat-item">
+                <span>生活费用：</span>
+                <div class="stat-value">
+                    <span id="totalExpense">0.00</span> 元
+                </div>
+            </div>
+            
+            <!-- 自定义费用容器 -->
+            <div id="customExpensesContainer"></div>
+
+            <div class="stat-item total-sum">
+                <span>合计总额：</span>
+                <div class="stat-value">
+                    <span id="netIncome">0.00</span> 元
+                </div>
+            </div>
+            <button class="reset-btn" onclick="resetData()">清除所有数据</button>
+        </div>
+
+        <div class="modal-overlay" id="editModal">
+            <div class="edit-modal">
+                <div class="status-options">
+                    <div class="status-option status-full" onclick="selectStatus('full')">全天</div>
+                    <div class="status-option status-half" onclick="selectStatus('half')">半天</div>
+                    <div class="status-option status-rest" onclick="selectStatus('rest')">休息</div>
+                </div>
+                <div class="expense-input">
+                    <input type="number" id="expenseInput" placeholder="输入当天生活费用">
+                    <button onclick="saveData()">保存</button>
+                </div>
             </div>
         </div>
-        <!-- 其他内容保持不变 -->
     </div>
-</div>
 
 <script>
     let currentDate = new Date();
