@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#2196F3">
     <title>工资计算器</title>
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.webmanifest">
     <style>
         :root {
             --primary-color: #2196F3;    /* 深蓝 */
@@ -13,6 +13,7 @@
             --rest-color: #757575;       /* 深灰 */
             --total-color: #ff4444;
             --default-status: #e0e0e0;   /* 统一未选中时的浅灰色 */
+            --success-color: #4CAF50;
         }
 
         * {
@@ -25,7 +26,8 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             padding: 10px;
             background: #f0f2f5;
-            height: 100vh;
+            min-height: 100vh;
+            position: relative;
         }
 
         .container {
@@ -34,10 +36,35 @@
             padding-bottom: 20px;
         }
 
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .install-btn {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .install-btn:hover {
+            background: #3d8b40;
+        }
+
         .page-title {
             text-align: center;
             color: white;
-            margin: 20px 0;
+            margin: 10px 0 20px;
             font-size: 24px;
             font-weight: bold;
             padding: 15px;
@@ -67,6 +94,7 @@
             background: #e0e0e0;
             color: #666;
             cursor: pointer;
+            font-size: 14px;
         }
 
         .mode-btn.active {
@@ -83,6 +111,13 @@
 
         .date-controls.active {
             display: grid;
+        }
+
+        .date-controls input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
         }
 
         .calendar {
@@ -174,21 +209,21 @@
             cursor: pointer;
             text-align: center;
             transition: all 0.2s;
-            background: var(--default-status) !important; /* 强制所有未选项为浅灰 */
+            background: var(--default-status) !important;
             color: #666;
         }
 
         .status-option.selected {
             color: white !important;
         }
-        /* 覆盖选中状态的样式 */
+        
         .status-option.selected.status-full {
             background: var(--primary-color) !important;
             color: white !important;
         }
         .status-option.selected.status-half {
             background: var(--half-color) !important;
-            color: black !important;  /* 黄色背景保持黑色文字 */
+            color: black !important;
         }
         .status-option.selected.status-rest {
             background: var(--rest-color) !important;
@@ -241,6 +276,7 @@
             margin-top: 15px;
             cursor: pointer;
             transition: all 0.3s;
+            font-size: 16px;
         }
 
         .reset-btn:hover {
@@ -344,13 +380,14 @@
             transform: translateX(-50%);
             background: #4CAF50;
             color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            display: flex;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            display: none;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
             z-index: 2000;
+            max-width: 90%;
             animation: slideUp 0.5s ease-out;
         }
 
@@ -363,10 +400,11 @@
             background: white;
             color: #4CAF50;
             border: none;
-            padding: 5px 15px;
-            border-radius: 20px;
+            padding: 8px 20px;
+            border-radius: 5px;
             font-weight: bold;
             cursor: pointer;
+            transition: all 0.2s;
         }
 
         .install-prompt button:active {
@@ -377,15 +415,127 @@
             background: transparent;
             color: white;
             border: none;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
-            padding: 0 5px;
+            padding: 0 10px;
+        }
+
+        /* 安装指南 */
+        .install-guide {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .guide-content {
+            background: white;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 25px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .guide-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .browser-steps {
+            margin-top: 20px;
+        }
+
+        .browser-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .browser-icon {
+            width: 30px;
+            height: 30px;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .browser-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .guide-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 480px) {
+            .page-title {
+                font-size: 20px;
+                padding: 12px;
+            }
+            
+            .mode-btn {
+                font-size: 12px;
+                padding: 8px 5px;
+            }
+            
+            .day-box {
+                min-height: 60px;
+            }
+            
+            .install-btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .install-prompt {
+                flex-direction: column;
+                text-align: center;
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="page-title">工资计算器</h1>
+        <div class="header">
+            <h1>工资计算器</h1>
+            <button class="install-btn" id="installBtn">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"/>
+                </svg>
+                安装应用
+            </button>
+        </div>
 
         <div class="mode-switch">
             <button class="mode-btn active" onclick="switchMode('month')">按月计算</button>
@@ -403,7 +553,7 @@
 
         <div class="calendar" id="calendar"></div>
 
-        <!-- 新增自定义费用模态框 -->
+        <!-- 自定义费用模态框 -->
         <div class="modal-overlay" id="customModal">
             <div class="edit-modal">
                 <input type="text" id="customName" placeholder="费用名称（如：支取）">
@@ -475,52 +625,62 @@
     </div>
 
     <!-- PWA安装提示 -->
-    <div class="install-prompt" id="installPrompt" style="display: none;">
+    <div class="install-prompt" id="installPrompt">
         <span>添加到主屏幕，离线使用更方便！</span>
-        <button id="installBtn">安装</button>
+        <button id="installActionBtn">安装</button>
         <button class="close-btn" onclick="document.getElementById('installPrompt').style.display='none'">×</button>
     </div>
 
-    <script>
-        // 添加PWA功能
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker 注册成功: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker 注册失败: ', error);
-                    });
-            });
-        }
-
-        // 添加安装提示
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const installPrompt = document.getElementById('installPrompt');
-            installPrompt.style.display = 'flex';
+    <!-- 安装指南 -->
+    <div class="install-guide" id="installGuide">
+        <div class="guide-content">
+            <span class="guide-close" onclick="document.getElementById('installGuide').style.display='none'">×</span>
+            <h2 class="guide-title">安装到手机桌面指南</h2>
             
-            document.getElementById('installBtn').addEventListener('click', () => {
-                installPrompt.style.display = 'none';
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('用户接受了安装提示');
-                    } else {
-                        console.log('用户拒绝了安装提示');
-                    }
-                    deferredPrompt = null;
-                });
-            });
-        });
+            <div class="browser-steps">
+                <h3>Chrome/Edge浏览器</h3>
+                <div class="browser-step">
+                    <div class="step-number">1</div>
+                    <div>点击右上角 ⋮ 菜单按钮</div>
+                </div>
+                <div class="browser-step">
+                    <div class="step-number">2</div>
+                    <div>选择"安装应用"或"添加到主屏幕"</div>
+                </div>
+                
+                <h3>Safari浏览器</h3>
+                <div class="browser-step">
+                    <div class="step-number">1</div>
+                    <div>点击底部的分享按钮 <span style="font-size:20px">⬆️</span></div>
+                </div>
+                <div class="browser-step">
+                    <div class="step-number">2</div>
+                    <div>选择"添加到主屏幕"</div>
+                </div>
+                
+                <h3>Firefox浏览器</h3>
+                <div class="browser-step">
+                    <div class="step-number">1</div>
+                    <div>点击右上角 ⋮ 菜单按钮</div>
+                </div>
+                <div class="browser-step">
+                    <div class="step-number">2</div>
+                    <div>选择"安装"或"添加到主屏幕"</div>
+                </div>
+            </div>
+            
+            <p style="margin-top: 20px; text-align: center; color: #666;">
+                安装后即可像原生应用一样使用，支持离线功能！
+            </p>
+        </div>
+    </div>
 
+    <script>
         // 应用数据存储和逻辑
         let records = JSON.parse(localStorage.getItem('workRecords')) || {};
         let customExpenses = JSON.parse(localStorage.getItem('customExpenses')) || [];
         let currentDate = new Date();
+        let selectedDateKey = null;
 
         // 工资输入框处理
         document.getElementById('dailyWageInput').addEventListener('focus', function() {
@@ -704,8 +864,16 @@
                 calculateStats();
             });
 
+            document.getElementById('startDate').valueAsDate = new Date();
+            document.getElementById('endDate').valueAsDate = new Date();
+            
             document.getElementById('startDate').addEventListener('change', calculateStats);
             document.getElementById('endDate').addEventListener('change', calculateStats);
+            
+            // 安装按钮事件
+            document.getElementById('installBtn').addEventListener('click', () => {
+                document.getElementById('installGuide').style.display = 'block';
+            });
         });
 
         function switchMode(mode) {
@@ -774,71 +942,28 @@
             }
             document.getElementById('editModal').style.display = 'none';
         }
-    </script>
-    
-      </script>
-    
-    <script>
- // PWA安装提示功能
+        
+        // PWA安装功能
         let deferredPrompt;
         
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             
-            // 延迟显示安装提示
-            setTimeout(() => {
-                const installPrompt = document.createElement('div');
-                installPrompt.id = 'installPrompt';
-                installPrompt.innerHTML = `
-                    <div style="
-                        position: fixed;
-                        bottom: 20px;
-                        left: 50%;
-                        transform: translateX(-50%);
-                        background: #4CAF50;
-                        color: white;
-                        padding: 10px 20px;
-                        border-radius: 30px;
-                        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-                        display: flex;
-                        align-items: center;
-                        gap: 10px;
-                        z-index: 2000;
-                    ">
-                        <span>添加到主屏幕，离线使用更方便！</span>
-                        <button id="installBtn" style="
-                            background: white;
-                            color: #4CAF50;
-                            border: none;
-                            padding: 5px 15px;
-                            border-radius: 20px;
-                            font-weight: bold;
-                            cursor: pointer;
-                        ">安装</button>
-                        <button class="close-btn" onclick="this.parentElement.remove()" style="
-                            background: transparent;
-                            color: white;
-                            border: none;
-                            font-size: 18px;
-                            cursor: pointer;
-                            padding: 0 5px;
-                        ">×</button>
-                    </div>
-                `;
-                document.body.appendChild(installPrompt);
-                
-                document.getElementById('installBtn').addEventListener('click', () => {
-                    installPrompt.remove();
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            console.log('用户接受了安装提示');
-                        }
-                        deferredPrompt = null;
-                    });
+            // 显示安装提示
+            const installPrompt = document.getElementById('installPrompt');
+            installPrompt.style.display = 'flex';
+            
+            document.getElementById('installActionBtn').addEventListener('click', () => {
+                installPrompt.style.display = 'none';
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户接受了安装提示');
+                    }
+                    deferredPrompt = null;
                 });
-            }, 5000); // 5秒后显示提示
+            });
         });
         
         // 注册Service Worker
@@ -852,6 +977,93 @@
                         console.log('ServiceWorker 注册失败: ', error);
                     });
             });
+        }
+    </script>
+    
+    <script>
+        // 创建manifest.webmanifest（虚拟）
+        const manifest = {
+            "name": "工资计算器",
+            "short_name": "工资计算器",
+            "description": "离线使用的工资计算器应用",
+            "start_url": "./",
+            "display": "standalone",
+            "background_color": "#f0f2f5",
+            "theme_color": "#2196F3",
+            "icons": [
+                {
+                    "src": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHBhdGggZD0iTTI1NiA1MTJjLTE0MS4zODQgMC0yNTYtMTE0LjYxNi0yNTYtMjU2czExNC42MTYtMjU2IDI1Ni0yNTYgMjU2IDExNC42MTYgMjU2IDI1Ni0xMTQuNjE2IDI1Ni0yNTYgMjU2em0wLTQ0OGMtMTA2LjAzIDAtMTkyIDg1Ljk3LTE5MiAxOTJzODUuOTcgMTkyIDE5MiAxOTIgMTkyLTg1Ljk3IDE5Mi0xOTItODUuOTctMTkyLTE5Mi0xOTJ6IiBmaWxsPSIjMjE5NkYzIi8+PHBhdGggZD0iTTM1MiAzMjBIMTYwYy0xNy42NjcgMC0zMi0xNC4zMzMtMzItMzJzMTQuMzMzLTMyIDMyLTMyaDE5MmMxNy42NjcgMCAzMiAxNC4zMzMgMzIgMzJzLTE0LjMzMyAzMi0zMiAzMnoiIGZpbGw9IiMyMTk2RjMiLz48cGF0aCBkPSJNMzIwIDM1MmMwIDE3LjY2Ny0xNC4zMzMgMzItMzIgMzJzLTMyLTE0LjMzMy0zMi0zMlYxNjBjMC0xNy42NjcgMTQuMzMzLTMyIDMyLTMyczMyIDE0LjMzMyAzMiAzMnYxOTJ6IiBmaWxsPSIjMjE5NkYzIi8+PC9zdmc+",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml"
+                }
+            ]
+        };
+
+        // 创建manifest链接
+        const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
+        document.querySelector('link[rel="manifest"]').href = manifestUrl;
+    </script>
+    
+    <script>
+        // Service Worker 脚本（内联）
+        const serviceWorkerScript = `
+            const CACHE_NAME = 'salary-calculator-v1';
+            const urlsToCache = [
+                './',
+                'index.html',
+                'manifest.webmanifest'
+            ];
+
+            self.addEventListener('install', event => {
+                event.waitUntil(
+                    caches.open(CACHE_NAME)
+                        .then(cache => {
+                            return cache.addAll(urlsToCache);
+                        })
+                );
+            });
+
+            self.addEventListener('fetch', event => {
+                event.respondWith(
+                    caches.match(event.request)
+                        .then(response => {
+                            if (response) {
+                                return response;
+                            }
+                            return fetch(event.request);
+                        })
+                );
+            });
+
+            self.addEventListener('activate', event => {
+                const cacheWhitelist = [CACHE_NAME];
+                event.waitUntil(
+                    caches.keys().then(cacheNames => {
+                        return Promise.all(
+                            cacheNames.map(cacheName => {
+                                if (cacheWhitelist.indexOf(cacheName) === -1) {
+                                    return caches.delete(cacheName);
+                                }
+                            })
+                        );
+                    })
+                );
+            });
+        `;
+
+        // 创建Blob URL用于Service Worker
+        const blob = new Blob([serviceWorkerScript], { type: 'application/javascript' });
+        const serviceWorkerUrl = URL.createObjectURL(blob);
+
+        // 注册Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register(serviceWorkerUrl)
+                .then(registration => {
+                    console.log('Service Worker 注册成功:', registration);
+                })
+                .catch(error => {
+                    console.log('Service Worker 注册失败:', error);
+                });
         }
     </script>
 </body>
