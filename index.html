@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>工资计算器</title>
+    <link rel="manifest" href="/manifest.json">
     <style>
         :root {
             --primary-color: #2196F3;    /* 深蓝 */
@@ -77,34 +78,6 @@
             display: grid;
         }
 
-        /* 日历导航 */
-        .calendar-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .nav-btn {
-            background: #2196F3;
-            color: white;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .current-month {
-            font-size: 16px;
-            font-weight: bold;
-            color: #333;
-        }
-
         /* 星期行 */
         .weekdays {
             display: grid;
@@ -132,6 +105,7 @@
             padding: 5px;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            touch-action: pan-y; /* 允许垂直滑动 */
         }
 
         .day-box {
@@ -386,10 +360,50 @@
             transform: translateY(-1px);
             box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
+        
+        /* 新增样式 */
+        .month-navigation {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-arrow {
+            cursor: pointer;
+            font-size: 18px;
+            color: #2196F3;
+            font-weight: bold;
+            padding: 4px;
+            user-select: none;
+        }
+        
+        .nav-arrow:hover {
+            background: #e3f2fd;
+            border-radius: 4px;
+        }
+        
+        #currentWorkMonth {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* 离线提示 */
+        #offlineAlert {
+            display: none;
+            background: #ff4444;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div id="offlineAlert">当前处于离线状态，数据将保存在本地</div>
+        
         <h1 class="page-title">工资计算器</h1>
 
         <div class="mode-switch">
@@ -408,16 +422,6 @@
         
         <!-- 日历容器 -->
         <div class="calendar-container">
-            <div class="calendar-nav">
-                <button class="nav-btn" id="prevMonth">
-                    &lt;
-                </button>
-                <div class="current-month" id="currentMonthTitle">2023年10月</div>
-                <button class="nav-btn" id="nextMonth">
-                    &gt;
-                </button>
-            </div>
-            
             <div class="weekdays">
                 <div class="weekday">日</div>
                 <div class="weekday">一</div>
@@ -452,8 +456,8 @@
             </div>
             <div class="stat-item">
                 <span>工作日期：</span>
-                <div class="stat-value">
-                    <span id="workDateRange">-</span>
+                <div class="stat-value" id="dateDisplay">
+                    <!-- 这里将根据模式显示月份导航或日期范围 -->
                 </div>
             </div>
             <div class="stat-item">
@@ -508,57 +512,131 @@
         let customExpenses = JSON.parse(localStorage.getItem('customExpenses')) || [];
         let currentDate = new Date();
         let selectedDateKey = null;
+        let touchStartX = 0;
+
+        // 数据备份和恢复功能
+        function backupData() {
+            const backup = {
+                records: records,
+                customExpenses: customExpenses,
+                dailyWage: document.getElementById('dailyWageInput').value,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('dataBackup', JSON.stringify(backup));
+        }
+
+        function restoreBackup() {
+            const backup = JSON.parse(localStorage.getItem('dataBackup'));
+            if (backup) {
+                records = backup.records || {};
+                customExpenses = backup.customExpenses || [];
+                document.getElementById('dailyWageInput').value = backup.dailyWage || '350元';
+                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                renderCustomExpenses();
+                calculateStats();
+            }
+        }
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
+            // 注册Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker 已注册'))
+                    .catch(err => console.error('Service Worker 注册失败:', err));
+            }
+            
+            // 恢复备份数据
+            restoreBackup();
+            
+            // 生成日历和统计数据
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
             renderCustomExpenses();
+            updateDateDisplay();
             calculateStats();
-            updateMonthTitle();
             
+            // 设置当前月份
             document.getElementById('currentMonth').value = 
                 `${currentDate.getFullYear()}-${pad(currentDate.getMonth()+1)}`;
+            
+            // 事件监听
             document.getElementById('currentMonth').addEventListener('change', function() {
                 const [year, month] = this.value.split('-').map(Number);
                 currentDate = new Date(year, month-1);
                 generateCalendar(year, month-1);
+                updateDateDisplay();
                 calculateStats();
-                updateMonthTitle();
             });
 
-            document.getElementById('startDate').valueAsDate = new Date();
-            document.getElementById('endDate').valueAsDate = new Date();
+            // 设置自定义日期的默认值为当月1号至最后一天
+            setCustomDateRangeToCurrentMonth();
             
-            document.getElementById('startDate').addEventListener('change', calculateStats);
-            document.getElementById('endDate').addEventListener('change', calculateStats);
-            
-            // 月份导航事件
-            document.getElementById('prevMonth').addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                const year = currentDate.getFullYear();
-                const month = currentDate.getMonth();
-                generateCalendar(year, month);
-                document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
+            document.getElementById('startDate').addEventListener('change', function() {
+                updateDateDisplay();
                 calculateStats();
-                updateMonthTitle();
             });
             
-            document.getElementById('nextMonth').addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                const year = currentDate.getFullYear();
-                const month = currentDate.getMonth();
-                generateCalendar(year, month);
-                document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
+            document.getElementById('endDate').addEventListener('change', function() {
+                updateDateDisplay();
                 calculateStats();
-                updateMonthTitle();
             });
+            
+            // 添加触摸事件监听器
+            const calendar = document.getElementById('calendar');
+            calendar.addEventListener('touchstart', handleTouchStart, false);
+            calendar.addEventListener('touchend', handleTouchEnd, false);
+            
+            // 网络状态检测
+            updateOnlineStatus();
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            
+            // 定期备份（每小时）
+            setInterval(backupData, 3600000);
+            
+            // 窗口关闭前备份
+            window.addEventListener('beforeunload', backupData);
+            
+            // 数据变化时自动备份
+            document.getElementById('dailyWageInput').addEventListener('change', backupData);
         });
         
-        // 更新月份标题
-        function updateMonthTitle() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            document.getElementById('currentMonthTitle').textContent = `${year}年${month}月`;
+        // 更新网络状态显示
+        function updateOnlineStatus() {
+            const offlineAlert = document.getElementById('offlineAlert');
+            offlineAlert.style.display = navigator.onLine ? 'none' : 'block';
+        }
+        
+        // 设置自定义日期范围为当前月
+        function setCustomDateRangeToCurrentMonth() {
+            const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            
+            document.getElementById('startDate').valueAsDate = startOfMonth;
+            document.getElementById('endDate').valueAsDate = endOfMonth;
+        }
+        
+        // 更新日期显示
+        function updateDateDisplay() {
+            const dateDisplay = document.getElementById('dateDisplay');
+            const activeModeBtn = document.querySelector('.mode-btn.active');
+            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 'custom';
+            
+            if (mode === 'month') {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth() + 1;
+                dateDisplay.innerHTML = `
+                    <div class="month-navigation">
+                        <span class="nav-arrow" onclick="goPrevMonth()">◀</span>
+                        <span id="currentWorkMonth">${year}年${pad(month)}月</span>
+                        <span class="nav-arrow" onclick="goNextMonth()">▶</span>
+                    </div>
+                `;
+            } else {
+                const startStr = document.getElementById('startDate').value;
+                const endStr = document.getElementById('endDate').value;
+                dateDisplay.textContent = `${startStr} 至 ${endStr}`;
+            }
         }
 
         // 生成日历
@@ -626,6 +704,7 @@
                 saveCustomExpenses();
                 renderCustomExpenses();
                 calculateStats();
+                backupData(); // 添加备份
             }
             document.getElementById('customModal').style.display = 'none';
         }
@@ -635,6 +714,7 @@
             saveCustomExpenses();
             renderCustomExpenses();
             calculateStats();
+            backupData(); // 添加备份
         }
 
         function renderCustomExpenses() {
@@ -656,7 +736,6 @@
         function calculateStats() {
             const dailyWage = parseFloat(document.getElementById('dailyWageInput').value.replace('元', '')) || 0;
             let workDays = 0, totalExpense = 0;
-            let dateRangeText = '-';
             let startDate, endDate;
 
             try {
@@ -668,20 +747,16 @@
                     const [year, month] = monthValue.split('-').map(Number);
                     startDate = new Date(year, month - 1, 1);
                     endDate = new Date(year, month, 0);
-                    dateRangeText = `${year}年${pad(month)}月`;
                 } else {
                     const startStr = document.getElementById('startDate').value;
                     const endStr = document.getElementById('endDate').value;
                     startDate = new Date(startStr);
                     endDate = new Date(endStr);
-                    dateRangeText = `${startStr} 至 ${endStr}`;
                 }
                 endDate.setHours(23, 59, 59, 999);
             } catch (e) {
                 console.error('日期解析错误:', e);
             }
-
-            document.getElementById('workDateRange').textContent = dateRangeText;
 
             // 计算工作天数和生活费用
             Object.entries(records).forEach(([dateKey, record]) => {
@@ -716,6 +791,7 @@
             localStorage.setItem('workRecords', JSON.stringify(records));
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
             calculateStats();
+            backupData(); // 添加备份
         }
         function saveCustomExpenses() {
             localStorage.setItem('customExpenses', JSON.stringify(customExpenses));
@@ -726,6 +802,13 @@
             document.getElementById('monthControl').style.display = mode === 'month' ? 'grid' : 'none';
             document.getElementById('customControl').style.display = mode === 'custom' ? 'grid' : 'none';
             document.querySelector(`button[onclick="switchMode('${mode}')"]`).classList.add('active');
+            
+            // 自定义模式时设置日期为当月1号至最后一天
+            if (mode === 'custom') {
+                setCustomDateRangeToCurrentMonth();
+            }
+            
+            updateDateDisplay();
             calculateStats();
         }
 
@@ -738,6 +821,7 @@
                 generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
                 renderCustomExpenses();
                 calculateStats();
+                backupData(); // 添加备份
             }
         }
 
@@ -786,6 +870,52 @@
                 saveAndUpdate();
             }
             document.getElementById('editModal').style.display = 'none';
+        }
+        
+        // 月份导航功能
+        function goPrevMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            generateCalendar(year, month);
+            document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
+            updateDateDisplay();
+            calculateStats();
+        }
+        
+        function goNextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            generateCalendar(year, month);
+            document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
+            updateDateDisplay();
+            calculateStats();
+        }
+        
+        // 触摸事件处理
+        function handleTouchStart(event) {
+            touchStartX = event.touches[0].clientX;
+        }
+        
+        function handleTouchEnd(event) {
+            if (!touchStartX) return;
+            
+            const touchEndX = event.changedTouches[0].clientX;
+            const diffX = touchStartX - touchEndX;
+            
+            // 判断滑动距离是否足够
+            if (Math.abs(diffX) > 50) {
+                if (diffX > 0) {
+                    // 向右滑动 - 下一个月
+                    goNextMonth();
+                } else {
+                    // 向左滑动 - 上一个月
+                    goPrevMonth();
+                }
+            }
+            
+            touchStartX = 0;
         }
     </script>
 </body>
