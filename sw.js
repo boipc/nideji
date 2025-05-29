@@ -3,9 +3,9 @@ const CACHE_NAME = 'salary-calculator-v1';
 
 // 需要缓存的资源
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json'
+  '/',
+  '/index.html',
+  '/manifest.json'
 ];
 
 // 安装事件
