@@ -1,5 +1,6 @@
-// 缓存名称
-const CACHE_NAME = 'salary-calculator-v3';
+// 使用动态缓存名称
+const CACHE_NAME = 'salary-calculator-' + new Date().getTime();
+
 // 需要缓存的资源
 const urlsToCache = [
   '/',
@@ -13,7 +14,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('缓存已打开，正在添加资源');
+        console.log('安装新Service Worker，缓存版本:', CACHE_NAME);
         return cache.addAll(urlsToCache);
       })
   );
@@ -30,7 +31,10 @@ self.addEventListener('activate', event => {
             return caches.delete(cacheName);
           }
         })
-      );
+      ).then(() => {
+        // 立即接管所有客户端
+        return self.clients.claim();
+      });
     })
   );
 });
