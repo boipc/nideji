@@ -398,9 +398,94 @@
             margin-bottom: 10px;
             font-size: 14px;
         }
+          /* 新增样式 */
+        .notification-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #FF9800;
+            color: white;
+            padding: 12px;
+            text-align: center;
+            z-index: 10000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .notification-content {
+            flex: 1;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0 10px;
+        }
+        
+        .notification-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 6px 12px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .notification-btn:hover {
+            background: #0d8bf2;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1000;
+            display: none;
+            animation: fadeInOut 3s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            10%, 90% { opacity: 1; }
+        }
+        
+        #installNotification {
+            background: #4CAF50;
+        }
     </style>
 </head>
 <body>
+       <!-- 更新通知 -->
+    <div class="notification-bar" id="updateNotification" style="display: none;">
+        <div class="notification-content">发现新版本可用！</div>
+        <button class="notification-btn" onclick="updateApp()">立即更新</button>
+        <button class="notification-close" onclick="closeNotification('updateNotification')">×</button>
+    </div>
+    
+    <!-- 安装提示 -->
+    <div class="notification-bar" id="installNotification" style="display: none;">
+        <div class="notification-content">添加到桌面，方便下次使用</div>
+        <button class="notification-btn" onclick="installApp()">安装应用</button>
+        <button class="notification-close" onclick="closeNotification('installNotification')">×</button>
+    </div>
+
     <div class="container">
         <div id="offlineAlert">当前处于离线状态，数据将保存在本地</div>
         
@@ -490,7 +575,8 @@
             </div>
             <button class="reset-btn" onclick="resetData()">清除所有数据</button>
         </div>
-
+ <!-- 数据保存提示 -->
+    <div class="toast" id="saveToast">数据保存成功！</div>
         <div class="modal-overlay" id="editModal">
             <div class="edit-modal">
                 <div class="status-options">
@@ -916,6 +1002,134 @@
             }
             
             touchStartX = 0;
+        }
+// 注册Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js?v=' + Date.now())
+                .then(reg => {
+                    console.log('Service Worker 已注册');
+                    
+                    // 检查更新
+                    reg.update();
+                    
+                    // 监听更新事件
+                    reg.addEventListener('updatefound', () => {
+                        const newWorker = reg.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                console.log('发现新版本');
+                                showUpdateNotification();
+                            }
+                        });
+                    });
+                })
+                .catch(err => console.error('注册失败:', err));
+            
+            // 监听控制权变更
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                console.log('Service Worker已更新，刷新页面');
+                window.location.reload(true);
+            });
+        }
+        
+        // 安装提示相关变量
+        let deferredPrompt;
+        
+        // 监听安装提示事件
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallNotification();
+        });
+        
+        // 显示更新通知
+        function showUpdateNotification() {
+            const notification = document.getElementById('updateNotification');
+            notification.style.display = 'flex';
+        }
+        
+        // 显示安装提示
+        function showInstallNotification() {
+            const notification = document.getElementById('installNotification');
+            notification.style.display = 'flex';
+            
+            // 7天后自动隐藏
+            setTimeout(() => {
+                if (notification.style.display === 'flex') {
+                    notification.style.display = 'none';
+                }
+            }, 7 * 24 * 60 * 60 * 1000);
+        }
+        
+        // 关闭通知
+        function closeNotification(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        
+        // 更新应用
+        function updateApp() {
+            window.location.reload(true);
+        }
+        
+        // 安装应用
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户同意安装');
+                        closeNotification('installNotification');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+        
+        // 显示保存提示
+        function showSaveToast() {
+            const toast = document.getElementById('saveToast');
+            toast.textContent = '数据保存成功！';
+            toast.style.display = 'block';
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 恢复备份数据...
+            
+            // 检查是否第一次访问
+            if (!localStorage.getItem('firstVisit')) {
+                localStorage.setItem('firstVisit', 'true');
+                setTimeout(showInstallNotification, 3000);
+            }
+        });
+        
+        // 在需要保存数据的地方调用 showSaveToast()
+        // 例如在 saveData() 函数中添加：
+        function saveData() {
+            // 原有保存逻辑...
+            showSaveToast(); // 添加这行
+        }
+        
+        // 在 addCustomExpense() 函数中添加：
+        function addCustomExpense() {
+            // 原有逻辑...
+            showSaveToast(); // 添加这行
+        }
+        
+        // 在 deleteCustomExpense() 函数中添加：
+        function deleteCustomExpense(id) {
+            // 原有逻辑...
+            showSaveToast(); // 添加这行
+        }
+        
+        // 在 resetData() 函数中添加：
+        function resetData() {
+            // 原有逻辑...
+            showSaveToast(); // 添加这行
         }
     </script>
 </body>
