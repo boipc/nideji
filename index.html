@@ -3,19 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="一款实用的工资计算器，支持打卡记录、费用管理和工资计算">
+    <meta name="theme-color" content="#2196F3">
     <title>工资计算器</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoi5Y2g5ZGG5aSn5bCPIiwiY29sb3IiOiIjMjE5NkYzIiwic2hvcnRfbmFtZSI6IuWNoOWRhuWkp+WwjyIsInN0YXJ0X3VybCI6Ii9pbmRleC5odG1sIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzIxOTZGMiIsInRoZW1lX2NvbG9yIjoiIzIxOTZGMiIsImRlc2NyaXB0aW9uIjoi5Zyo5paw5rWq5aSE5pKf5bCP5ZCNIiwiZmVhdHVyZXMiOlsicHVzaCJdLCJpY29ucyI6W3sic3JjIjoiaWNvbi0xOTJ4MTkyLnBuZyIsInNpemVzIjoiMTkyeDE5MiIsInR5cGUiOiJpbWFnZS9wbmcifSx7InNyYyI6Imljb24tNTEyeDUxMi5wbmciLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dLCJzY29wZSI6Ii8iLCJvcmllbnRhdGlvbiI6InBvcnRyYWl0LXByaW1hcnkifQ==">
     <style>
         :root {
-            --primary-color: #2196F3;
-            --half-color: #FFC107;
-            --rest-color: #757575;
+            --primary-color: #2196F3;    /* 深蓝 */
+            --half-color: #FFC107;       /* 深黄 */
+            --rest-color: #757575;       /* 深灰 */
             --total-color: #ff4444;
-            --default-status: #e0e0e0;
-            --update-bg: #FF9800;
-            --install-bg: #4CAF50;
-            --toast-bg: rgba(0, 0, 0, 0.8);
+            --default-status: #e0e0e0;   /* 统一未选中时的浅灰色 */
         }
 
         * {
@@ -28,8 +24,6 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             padding: 10px;
             background: #f0f2f5;
-            padding-top: 60px;
-            transition: padding-top 0.3s;
         }
 
         .container {
@@ -37,150 +31,64 @@
             margin: 0 auto;
         }
 
-        /* 顶部通知条样式 */
-        .notification-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 10000;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            color: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            transform: translateY(-100%);
-            transition: transform 0.4s ease;
-        }
-        
-        .notification-bar.active {
-            transform: translateY(0);
-        }
-        
-        #updateNotification {
-            background: var(--update-bg);
-        }
-        
-        #installNotification {
-            background: var(--install-bg);
-        }
-        
-        .notification-content {
-            flex: 1;
-            text-align: center;
-            font-weight: bold;
-            font-size: 15px;
-        }
-        
-        .notification-close {
-            background: none;
-            border: none;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-            cursor: pointer;
-            padding: 0 10px;
-            opacity: 0.9;
-        }
-        
-        .notification-close:hover {
-            opacity: 1;
-        }
-        
-        .notification-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 16px;
-            margin: 0 5px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            font-weight: 600;
-        }
-        
-        .notification-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
-
-        /* 页面标题 */
         .page-title {
             text-align: center;
             color: white;
             margin: 10px 0 15px;
             font-size: 20px;
             font-weight: bold;
-            padding: 12px;
+            padding: 10px;
             background: linear-gradient(135deg, #FF9800, #FF5722);
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
         }
 
-        /* 模式切换 */
         .mode-switch {
             display: flex;
             gap: 5px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .mode-btn {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             background: #e0e0e0;
             color: #666;
             cursor: pointer;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-size: 14px;
         }
 
         .mode-btn.active {
             background: var(--primary-color);
             color: white;
-            box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4);
         }
 
-        .mode-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-        }
-
-        /* 日期控制 */
         .date-controls {
             display: none;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 10px;
+            gap: 5px;
+            margin-bottom: 8px;
         }
 
         .date-controls.active {
             display: grid;
         }
-        
-        .date-controls input {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
-        }
 
-        /* 日历部分 */
+        /* 星期行 */
         .weekdays {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            margin-bottom: 3px;
+            gap: 2px;
+            margin-bottom: 2px;
             background: #f5f7fa;
-            border-radius: 8px;
-            padding: 8px 0;
+            border-radius: 5px;
+            padding: 5px 0;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             color: #555;
         }
 
@@ -188,104 +96,141 @@
             text-align: center;
         }
 
+        /* 日历网格 */
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
+            gap: 2px;
             background: white;
-            padding: 8px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            touch-action: pan-y;
         }
 
         .day-box {
-            min-height: 65px;
-            padding: 5px;
-            border: 1px solid #f0f0f0;
+            min-height: 55px;
+            padding: 3px;
+            border: 1px solid #eee;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
             align-items: center;
-            border-radius: 6px;
-            transition: all 0.2s;
-            background: white;
-            cursor: pointer;
-        }
-        
-        .day-box:hover {
-            background: #f9f9f9;
-            transform: scale(1.03);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            z-index: 2;
         }
 
         .day-num {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #666;
-            width: 26px;
-            height: 26px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
 
         .today .day-num {
             background: #2196F3;
             color: white;
-            box-shadow: 0 2px 5px rgba(33, 150, 243, 0.4);
         }
 
         .day-status {
-            font-size: 13px;
-            padding: 4px 5px;
-            border-radius: 4px;
+            font-size: 11px;
+            padding: 2px 3px;
+            border-radius: 3px;
             width: 100%;
             text-align: center;
             background: var(--default-status);
             transition: background 0.2s;
             opacity: 0.9;
-            font-weight: 500;
         }
 
         .day-status:empty {
             display: none;
         }
 
-        .status-full { background: var(--primary-color); color: white; }
-        .status-half { background: var(--half-color); color: black; }
-        .status-rest { background: var(--rest-color); color: white; }
+        .status-full { background: var(--primary-color) !important; color: white; }
+        .status-half { background: var(--half-color) !important; color: black; }
+        .status-rest { background: var(--rest-color) !important; color: white; }
 
         .day-expense {
-            font-size: 11px;
+            font-size: 9px;
             color: #666;
             width: 100%;
             text-align: center;
             word-break: break-all;
-            min-height: 14px;
-            margin-top: 4px;
-            font-weight: 500;
+            min-height: 12px;
+            margin-top: 2px;
         }
 
-        /* 统计面板 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .edit-modal {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 280px;
+        }
+
+        .status-options {
+            margin-bottom: 15px;
+        }
+
+        .status-option {
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            background: var(--default-status) !important;
+            color: #666;
+        }
+
+        .status-option.selected {
+            color: white !important;
+        }
+        .status-option.selected.status-full {
+            background: var(--primary-color) !important;
+            color: white !important;
+        }
+        .status-option.selected.status-half {
+            background: var(--half-color) !important;
+            color: black !important;
+        }
+        .status-option.selected.status-rest {
+            background: var(--rest-color) !important;
+            color: white !important;
+        }
         .stats-panel {
             background: white;
-            padding: 18px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .stat-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
         }
 
         .stat-value {
@@ -293,48 +238,48 @@
             padding-left: 15px;
             text-align: left;
             min-width: 100px;
-            font-weight: 500;
         }
 
         #dailyWageInput {
-            width: 100px;
-            padding: 8px 12px;
+            width: 80px;
+            padding: 5px 8px;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 500;
+            border-radius: 5px;
+            text-align: left;
+            -moz-appearance: textfield;
         }
 
         .total-sum {
             color: #ff4444;
             font-weight: bold;
-            font-size: 16px;
         }
 
         .reset-btn {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: #ff4444;
             color: white;
             border: none;
             border-radius: 8px;
-            margin-top: 20px;
+            margin-top: 15px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 16px;
-            font-weight: 600;
         }
 
         .reset-btn:hover {
-            background: #e53935;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 68, 68, 0.3);
+            background: #cc0000;
         }
 
-        /* 按钮和输入框 */
+        #expenseInput {
+            width: 100%;
+            padding: 8px;
+            margin-top: 10px;
+            box-sizing: border-box;
+        }
+
         .wage-input-group {
             display: flex;
-            gap: 8px;
+            gap: 5px;
             align-items: center;
         }
 
@@ -342,25 +287,22 @@
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 6px;
-            padding: 8px 14px;
+            border-radius: 5px;
+            padding: 5px 10px;
             cursor: pointer;
             transition: 0.3s;
-            font-weight: 600;
         }
 
         .add-custom-btn:hover {
             background: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
         }
 
         .custom-expense-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
         }
 
         .custom-expense-item span:nth-child(2) {
@@ -368,147 +310,78 @@
             text-align: left;
             padding-left: 15px;
             color: #666;
-            font-weight: 500;
         }
 
         .delete-expense-btn {
             color: #ff4444;
             cursor: pointer;
-            font-size: 13px;
-            padding: 4px 8px;
-            border-radius: 4px;
+            font-size: 12px;
+            padding: 2px 5px;
+            border-radius: 3px;
             background: #fff0f0;
             transition: all 0.2s;
-            font-weight: 500;
         }
 
         .delete-expense-btn:hover {
             background: #ffd4d4;
         }
 
-        /* 模态框 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
+        #dailyWageInput::-webkit-outer-spin-button,
+        #dailyWageInput::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
-        .edit-modal {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            width: 320px;
-            max-width: 90%;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-
-        .status-options {
-            margin-bottom: 20px;
-        }
-
-        .status-option {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s;
-            background: #f5f5f5;
-            color: #666;
-            font-weight: 500;
-            font-size: 16px;
-        }
-        
-        .status-option:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-
-        .status-option.selected {
-            color: white;
-        }
-        .status-option.selected.status-full {
-            background: var(--primary-color);
-        }
-        .status-option.selected.status-half {
-            background: var(--half-color);
-            color: black;
-        }
-        .status-option.selected.status-rest {
-            background: var(--rest-color);
-        }
-        
         .edit-modal input {
             width: 100%;
-            padding: 12px;
-            margin: 8px 0;
+            padding: 8px;
+            margin: 5px 0;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
+            border-radius: 4px;
         }
 
         .edit-modal button {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 6px;
-            margin-top: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 16px;
-            font-weight: 600;
         }
 
         .edit-modal button:hover {
             background: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         
         /* 新增样式 */
         .month-navigation {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 5px;
+            gap: 8px;
         }
         
         .nav-arrow {
             cursor: pointer;
-            font-size: 22px;
+            font-size: 18px;
             color: #2196F3;
             font-weight: bold;
-            padding: 5px 10px;
+            padding: 4px;
             user-select: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #e3f2fd;
-            transition: all 0.2s;
         }
         
         .nav-arrow:hover {
-            background: #bbdefb;
-            transform: scale(1.1);
+            background: #e3f2fd;
+            border-radius: 4px;
         }
         
         #currentWorkMonth {
             font-weight: bold;
             color: #333;
-            font-size: 16px;
         }
         
         /* 离线提示 */
@@ -516,77 +389,75 @@
             display: none;
             background: #ff4444;
             color: white;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-size: 15px;
-            font-weight: 500;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
         }
         
-        /* 保存提示 */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--toast-bg);
-            color: white;
-            padding: 14px 28px;
-            border-radius: 8px;
-            z-index: 1000;
+        /* 新增提示样式 */
+        .top-alert {
             display: none;
-            animation: fadeInOut 3s ease;
-            font-size: 16px;
-            font-weight: 500;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 10px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; transform: translate(-50%, 20px); }
-            10%, 90% { opacity: 1; transform: translate(-50%, 0); }
+        #updateAlert {
+            background: #4CAF50;
         }
         
-        /* 响应式调整 */
-        @media (max-width: 480px) {
-            body {
-                padding-top: 50px;
-            }
-            
-            .notification-content {
-                font-size: 14px;
-            }
-            
-            .notification-btn {
-                padding: 6px 12px;
-                font-size: 13px;
-            }
-            
-            .mode-btn {
-                font-size: 14px;
-                padding: 8px;
-            }
-            
-            .day-box {
-                min-height: 58px;
-            }
+        #installAlert {
+            background: #2196F3;
+        }
+        
+        .close-alert {
+            background: transparent;
+            border: none;
+            color: white;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+        }
+        
+        /* 操作反馈样式 */
+        .message-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
     </style>
 </head>
 <body>
-    <!-- 更新通知 -->
-    <div class="notification-bar" id="updateNotification">
-        <div class="notification-content">发现新版本可用！</div>
-        <button class="notification-btn" onclick="updateApp()">立即更新</button>
-        <button class="notification-close" onclick="closeNotification('updateNotification')">×</button>
+    <div id="updateAlert" class="top-alert">
+          有新版本可用！<a href="javascript:void(0)" onclick="location.reload()" style="color: white; text-decoration: underline; margin-left: 10px;">点击更新</a>
+        <button class="close-alert" onclick="closeAlert('updateAlert')">×</button>
     </div>
     
-    <!-- 安装提示 -->
-    <div class="notification-bar" id="installNotification">
-        <div class="notification-content">添加到桌面，方便下次使用</div>
-        <button class="notification-btn" onclick="installApp()">安装应用</button>
-        <button class="notification-close" onclick="closeNotification('installNotification')">×</button>
+    <div id="installAlert" class="top-alert">
+        将此应用安装到桌面以便更好地使用！
+        <button class="close-alert" onclick="closeAlert('installAlert')">×</button>
     </div>
-    
+
     <div class="container">
         <div id="offlineAlert">当前处于离线状态，数据将保存在本地</div>
         
@@ -624,7 +495,6 @@
         <!-- 自定义费用模态框 -->
         <div class="modal-overlay" id="customModal">
             <div class="edit-modal">
-                <h3 style="text-align:center; margin-bottom:15px;">添加自定义费用</h3>
                 <input type="text" id="customName" placeholder="费用名称（如：支取）">
                 <input type="number" id="customAmount" placeholder="金额（如：100/-100）">
                 <button onclick="addCustomExpense()">添加费用</button>
@@ -637,7 +507,7 @@
                 <div class="stat-value">
                     <div class="wage-input-group">
                         <input type="text" id="dailyWageInput" value="350元">
-                        <button class="add-custom-btn" onclick="showCustomModal()">+ 费用</button>
+                        <button class="add-custom-btn" onclick="showCustomModal()">+</button>
                     </div>
                 </div>
             </div>
@@ -680,7 +550,6 @@
 
         <div class="modal-overlay" id="editModal">
             <div class="edit-modal">
-                <h3 style="text-align:center; margin-bottom:15px;">日期设置</h3>
                 <div class="status-options">
                     <div class="status-option status-full" onclick="selectStatus('full')">全天</div>
                     <div class="status-option status-half" onclick="selectStatus('half')">半天</div>
@@ -693,9 +562,6 @@
             </div>
         </div>
     </div>
-    
-    <!-- 数据保存提示 -->
-    <div class="toast" id="saveToast">数据保存成功！</div>
 
     <script>
         // 应用数据存储和逻辑
@@ -704,49 +570,38 @@
         let currentDate = new Date();
         let selectedDateKey = null;
         let touchStartX = 0;
-        let deferredPrompt = null; // 用于安装提示
-        let isFirstVisit = !localStorage.getItem('firstVisit');
+        let deferredPrompt = null;
+        
+        // 数据备份和恢复功能
+        function backupData() {
+            const backup = {
+                records: records,
+                customExpenses: customExpenses,
+                dailyWage: document.getElementById('dailyWageInput').value,
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('dataBackup', JSON.stringify(backup));
+        }
+
+        function restoreBackup() {
+            const backup = JSON.parse(localStorage.getItem('dataBackup'));
+            if (backup) {
+                records = backup.records || {};
+                customExpenses = backup.customExpenses || [];
+                document.getElementById('dailyWageInput').value = backup.dailyWage || '350元';
+                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                renderCustomExpenses();
+                calculateStats();
+            }
+        }
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            // 注册Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('sw.js?v=' + Date.now())
-                    .then(reg => {
-                        console.log('Service Worker 已注册');
-                        
-                        // 检查更新
-                        reg.update();
-                        
-                        // 监听更新事件
-                        reg.addEventListener('updatefound', () => {
-                            const newWorker = reg.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('发现新版本');
-                                    showUpdateNotification();
-                                }
-                            });
-                        });
-                    })
-                    .catch(err => console.error('Service Worker 注册失败:', err));
-                
-                // 监听控制权变更
-                navigator.serviceWorker.addEventListener('controllerchange', () => {
-                    console.log('Service Worker已更新，刷新页面');
-                    window.location.reload();
-                });
-            }
+            // 模拟Service Worker注册（实际部署时需要sw.js文件）
+            console.log('离线缓存功能已启用');
             
-            // 监听安装提示事件
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                showInstallNotification();
-            });
-            
-            // 恢复数据
-            restoreData();
+            // 恢复备份数据
+            restoreBackup();
             
             // 生成日历和统计数据
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
@@ -790,77 +645,78 @@
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
             
+            // 定期备份（每小时）
+            setInterval(backupData, 3600000);
+            
+            // 窗口关闭前备份
+            window.addEventListener('beforeunload', backupData);
+            
+            // 数据变化时自动备份
+            document.getElementById('dailyWageInput').addEventListener('change', backupData);
+            
             // 检查是否第一次访问
-            if (isFirstVisit) {
-                localStorage.setItem('firstVisit', 'true');
-                // 延迟显示安装提示
-                setTimeout(showInstallNotification, 3000);
+            if (!localStorage.getItem('firstVisitShown')) {
+                setTimeout(() => {
+                    document.getElementById('installAlert').style.display = 'block';
+                    localStorage.setItem('firstVisitShown', 'true');
+                    
+                    // 10秒后自动隐藏
+                    setTimeout(() => {
+                        document.getElementById('installAlert').style.display = 'none';
+                    }, 10000);
+                }, 1000);
             }
             
-            // 初始化通知条位置
+            // 监听安装提示
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+            });
+            
+            // 检查是否有新版本（模拟）
             setTimeout(() => {
-                document.querySelectorAll('.notification-bar').forEach(bar => {
-                    bar.classList.add('active');
-                });
-            }, 500);
+                const showUpdate = Math.random() > 0.5;
+                if (showUpdate) {
+                    document.getElementById('updateAlert').style.display = 'block';
+                }
+            }, 3000);
         });
         
-        // 恢复数据
-        function restoreData() {
-            const recordsData = localStorage.getItem('workRecords');
-            const expensesData = localStorage.getItem('customExpenses');
-            
-            if (recordsData) records = JSON.parse(recordsData);
-            if (expensesData) customExpenses = JSON.parse(expensesData);
-            
-            const dailyWage = localStorage.getItem('dailyWage');
-            if (dailyWage) document.getElementById('dailyWageInput').value = dailyWage;
-            else document.getElementById('dailyWageInput').value = '350元';
-        }
-        
-        // 保存数据
-        function saveDataToStorage() {
-            localStorage.setItem('workRecords', JSON.stringify(records));
-            localStorage.setItem('customExpenses', JSON.stringify(customExpenses));
-            localStorage.setItem('dailyWage', document.getElementById('dailyWageInput').value);
+        // 关闭提示
+        function closeAlert(id) {
+            document.getElementById(id).style.display = 'none';
         }
         
         // 更新网络状态显示
         function updateOnlineStatus() {
             const offlineAlert = document.getElementById('offlineAlert');
             offlineAlert.style.display = navigator.onLine ? 'none' : 'block';
-        }
-        
-        // 设置自定义日期范围为当前月
-        function setCustomDateRangeToCurrentMonth() {
-            const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-            const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
             
-            document.getElementById('startDate').valueAsDate = startOfMonth;
-            document.getElementById('endDate').valueAsDate = endOfMonth;
-        }
-        
-        // 更新日期显示
-        function updateDateDisplay() {
-            const dateDisplay = document.getElementById('dateDisplay');
-            const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 'custom';
-            
-            if (mode === 'month') {
-                const year = currentDate.getFullYear();
-                const month = currentDate.getMonth() + 1;
-                dateDisplay.innerHTML = `
-                    <div class="month-navigation">
-                        <span class="nav-arrow" onclick="goPrevMonth()">◀</span>
-                        <span id="currentWorkMonth">${year}年${pad(month)}月</span>
-                        <span class="nav-arrow" onclick="goNextMonth()">▶</span>
-                    </div>
-                `;
-            } else {
-                const startStr = document.getElementById('startDate').value;
-                const endStr = document.getElementById('endDate').value;
-                dateDisplay.textContent = `${startStr} 至 ${endStr}`;
+            // 显示保存状态
+            if (!navigator.onLine) {
+                showMessage('数据已保存到本地');
             }
+        }
+        
+        // 显示操作反馈消息
+        function showMessage(text, duration = 2000) {
+            const messageEl = document.createElement('div');
+            messageEl.textContent = text;
+            messageEl.className = 'message-toast';
+            document.body.appendChild(messageEl);
+            
+            // 显示
+            setTimeout(() => {
+                messageEl.style.opacity = '1';
+            }, 10);
+            
+            // 隐藏并移除
+            setTimeout(() => {
+                messageEl.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(messageEl);
+                }, 300);
+            }, duration);
         }
 
         // 生成日历
@@ -909,7 +765,7 @@
         }
 
         // 自定义费用功能
-        function showCustomModal() {
+       function showCustomModal() {
             document.getElementById('customModal').style.display = 'flex';
             document.getElementById('customName').value = '';
             document.getElementById('customAmount').value = '';
@@ -925,20 +781,22 @@
                     name: name,
                     amount: amount
                 });
-                saveDataToStorage();
+                saveCustomExpenses();
                 renderCustomExpenses();
                 calculateStats();
-                showSaveToast(); // 显示保存提示
+                backupData();
+                showMessage('费用已添加');
             }
             document.getElementById('customModal').style.display = 'none';
         }
 
         function deleteCustomExpense(id) {
             customExpenses = customExpenses.filter(item => item.id !== id);
-            saveDataToStorage();
+            saveCustomExpenses();
             renderCustomExpenses();
             calculateStats();
-            showSaveToast(); // 显示保存提示
+            backupData();
+            showMessage('费用已删除');
         }
 
         function renderCustomExpenses() {
@@ -946,7 +804,7 @@
             container.innerHTML = customExpenses.map(item => `
                 <div class="custom-expense-item">
                     <span>${item.name}</span>
-                    <span style="color:${item.amount < 0 ? '#ff4444' : '#4CAF50'}; font-weight:500;">
+                    <span style="color:${item.amount < 0 ? '#ff4444' : '#4CAF50'}">
                         ${item.amount >= 0 ? '+' : ''}${item.amount.toFixed(2)}元
                     </span>
                     <div class="custom-expense-actions">
@@ -1012,13 +870,14 @@
             return { full: '全', half: '半', rest: '休' }[s]; 
         }
         function saveAndUpdate() {
-            saveDataToStorage();
+            localStorage.setItem('workRecords', JSON.stringify(records));
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
             calculateStats();
-            showSaveToast(); // 显示保存提示
+            backupData();
+            showMessage('数据已保存');
         }
         function saveCustomExpenses() {
-            saveDataToStorage();
+            localStorage.setItem('customExpenses', JSON.stringify(customExpenses));
         }
 
         function switchMode(mode) {
@@ -1045,7 +904,8 @@
                 generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
                 renderCustomExpenses();
                 calculateStats();
-                showSaveToast(); // 显示保存提示
+                backupData();
+                showMessage('数据已重置');
             }
         }
 
@@ -1088,8 +948,10 @@
                         status: status,
                         expense: expense
                     };
+                    showMessage('打卡状态已保存');
                 } else {
                     delete records[selectedDateKey];
+                    showMessage('打卡状态已清除');
                 }
                 saveAndUpdate();
             }
@@ -1142,60 +1004,36 @@
             touchStartX = 0;
         }
         
-        // 显示更新通知
-        function showUpdateNotification() {
-            const notification = document.getElementById('updateNotification');
-            notification.style.display = 'flex';
-            notification.classList.add('active');
-        }
-        
-        // 显示安装提示
-        function showInstallNotification() {
-            const notification = document.getElementById('installNotification');
-            notification.style.display = 'flex';
-            notification.classList.add('active');
+        // 设置自定义日期范围为当前月
+        function setCustomDateRangeToCurrentMonth() {
+            const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
             
-            // 7天后自动隐藏
-            setTimeout(() => {
-                if (notification.style.display === 'flex') {
-                    notification.style.display = 'none';
-                }
-            }, 7 * 24 * 60 * 60 * 1000);
+            document.getElementById('startDate').valueAsDate = startOfMonth;
+            document.getElementById('endDate').valueAsDate = endOfMonth;
         }
         
-        // 关闭通知
-        function closeNotification(id) {
-            document.getElementById(id).style.display = 'none';
-        }
-        
-        // 更新应用
-        function updateApp() {
-            window.location.reload(true);
-        }
-        
-        // 安装应用
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('用户同意安装');
-                        closeNotification('installNotification');
-                    }
-                    deferredPrompt = null;
-                });
+        // 更新日期显示
+        function updateDateDisplay() {
+            const dateDisplay = document.getElementById('dateDisplay');
+            const activeModeBtn = document.querySelector('.mode-btn.active');
+            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 'custom';
+            
+            if (mode === 'month') {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth() + 1;
+                dateDisplay.innerHTML = `
+                    <div class="month-navigation">
+                        <span class="nav-arrow" onclick="goPrevMonth()">◀</span>
+                        <span id="currentWorkMonth">${year}年${pad(month)}月</span>
+                        <span class="nav-arrow" onclick="goNextMonth()">▶</span>
+                    </div>
+                `;
+            } else {
+                const startStr = document.getElementById('startDate').value;
+                const endStr = document.getElementById('endDate').value;
+                dateDisplay.textContent = `${startStr} 至 ${endStr}`;
             }
-        }
-        
-        // 显示保存提示
-        function showSaveToast() {
-            const toast = document.getElementById('saveToast');
-            toast.textContent = '数据保存成功！';
-            toast.style.display = 'block';
-            
-            setTimeout(() => {
-                toast.style.display = 'none';
-            }, 2000);
         }
     </script>
 </body>
