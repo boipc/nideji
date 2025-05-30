@@ -1,5 +1,5 @@
 // sw.js
-const CACHE_NAME = 'salary-calculator-v1';
+const CACHE_NAME = 'salary-calculator-v1.0.1';
 const urlsToCache = [
   '/',
   '/index.html',
