@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF9800">
     <title>工资计算器</title>
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <style>
         :root {
             --primary-color: #2196F3;    /* 深蓝 */
@@ -13,54 +14,93 @@
             --rest-color: #757575;       /* 深灰 */
             --total-color: #ff4444;
             --default-status: #e0e0e0;   /* 统一未选中时的浅灰色 */
+            --install-btn-color: #4CAF50;
+            --feedback-scale: 0.95;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             padding: 10px;
             background: #f0f2f5;
+            transition: background-color 0.3s;
         }
 
         .container {
             max-width: 600px;
             margin: 0 auto;
+            padding-bottom: 20px;
         }
 
         .page-title {
             text-align: center;
             color: white;
-            margin: 10px 0 15px; /* 减小上下边距 */
-            font-size: 20px; /* 减小字体大小 */
+            margin: 10px 0 15px;
+            font-size: 20px;
             font-weight: bold;
-            padding: 10px; /* 减小内边距 */
+            padding: 10px;
             background: linear-gradient(135deg, #FF9800, #FF5722);
-            border-radius: 8px; /* 减小圆角 */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15); /* 减小阴影 */
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
+        }
+
+        .install-container {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        #installBtn {
+            background: var(--install-btn-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #installBtn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(0,0,0,0.25);
+        }
+
+        #installBtn:active {
+            transform: translateY(0) scale(0.98);
         }
 
         .mode-switch {
             display: flex;
             gap: 5px;
-            margin-bottom: 8px; /* 减小边距 */
+            margin-bottom: 8px;
         }
 
         .mode-btn {
             flex: 1;
-            padding: 8px; /* 减小内边距 */
+            padding: 8px;
             border: none;
-            border-radius: 6px; /* 减小圆角 */
+            border-radius: 6px;
             background: #e0e0e0;
             color: #666;
             cursor: pointer;
-            font-size: 14px; /* 减小字体大小 */
+            font-size: 14px;
+            transition: all 0.2s ease;
         }
 
         .mode-btn.active {
@@ -68,11 +108,15 @@
             color: white;
         }
 
+        .mode-btn:active {
+            transform: scale(var(--feedback-scale));
+        }
+
         .date-controls {
             display: none;
             grid-template-columns: 1fr 1fr;
             gap: 5px;
-            margin-bottom: 8px; /* 减小边距 */
+            margin-bottom: 8px;
         }
 
         .date-controls.active {
@@ -110,15 +154,21 @@
         }
 
         .day-box {
-            min-height: 55px; /* 缩短格子高度 */
-            padding: 3px; /* 减小内边距 */
+            min-height: 55px;
+            padding: 3px;
             border: 1px solid #eee;
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* 顶部对齐 */
+            justify-content: flex-start;
             align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .day-box:active {
+            transform: scale(var(--feedback-scale));
+            background-color: #f9f9f9;
         }
 
         .day-num {
@@ -131,7 +181,7 @@
             align-items: center;
             justify-content: center;
             border-radius: 50%;
-            margin-bottom: 3px; /* 减小间距 */
+            margin-bottom: 3px;
         }
 
         .today .day-num {
@@ -140,18 +190,16 @@
         }
 
         .day-status {
-            font-size: 11px; /* 减小字体大小 */
-            padding: 2px 3px; /* 减小内边距 */
+            font-size: 11px;
+            padding: 2px 3px;
             border-radius: 3px;
             width: 100%;
             text-align: center;
             background: var(--default-status);
             transition: background 0.2s;
-            /* 隐藏未设置状态的线条 */
             opacity: 0.9;
         }
 
-        /* 当没有状态时，隐藏状态元素 */
         .day-status:empty {
             display: none;
         }
@@ -166,8 +214,8 @@
             width: 100%;
             text-align: center;
             word-break: break-all;
-            min-height: 12px; /* 减小高度 */
-            margin-top: 2px; /* 减小间距 */
+            min-height: 12px;
+            margin-top: 2px;
         }
 
         /* 其他样式保持不变 */
@@ -182,6 +230,12 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .edit-modal {
@@ -189,6 +243,13 @@
             padding: 20px;
             border-radius: 10px;
             width: 280px;
+            animation: slideUp 0.4s ease;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
         .status-options {
@@ -204,6 +265,10 @@
             transition: all 0.2s;
             background: var(--default-status) !important;
             color: #666;
+        }
+
+        .status-option:active {
+            transform: scale(var(--feedback-scale));
         }
 
         .status-option.selected {
@@ -251,6 +316,13 @@
             border-radius: 5px;
             text-align: left;
             -moz-appearance: textfield;
+            transition: border-color 0.2s;
+        }
+
+        #dailyWageInput:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
         }
 
         .total-sum {
@@ -268,10 +340,16 @@
             margin-top: 15px;
             cursor: pointer;
             transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
         }
 
         .reset-btn:hover {
             background: #cc0000;
+        }
+
+        .reset-btn:active {
+            transform: scale(var(--feedback-scale));
         }
 
         #expenseInput {
@@ -279,6 +357,15 @@
             padding: 8px;
             margin-top: 10px;
             box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+        }
+
+        #expenseInput:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
         }
 
         .wage-input-group {
@@ -297,8 +384,8 @@
             transition: 0.3s;
         }
 
-        .add-custom-btn:hover {
-            background: #45a049;
+        .add-custom-btn:active {
+            transform: scale(var(--feedback-scale));
         }
 
         .custom-expense-item {
@@ -326,8 +413,8 @@
             transition: all 0.2s;
         }
 
-        .delete-expense-btn:hover {
-            background: #ffd4d4;
+        .delete-expense-btn:active {
+            transform: scale(var(--feedback-scale));
         }
 
         #dailyWageInput::-webkit-outer-spin-button,
@@ -356,13 +443,10 @@
             transition: all 0.2s;
         }
 
-        .edit-modal button:hover {
-            background: #45a049;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        .edit-modal button:active {
+            transform: scale(var(--feedback-scale));
         }
         
-        /* 新增样式 */
         .month-navigation {
             display: flex;
             align-items: center;
@@ -376,11 +460,11 @@
             font-weight: bold;
             padding: 4px;
             user-select: none;
+            transition: all 0.2s;
         }
         
-        .nav-arrow:hover {
-            background: #e3f2fd;
-            border-radius: 4px;
+        .nav-arrow:active {
+            transform: scale(var(--feedback-scale));
         }
         
         #currentWorkMonth {
@@ -398,57 +482,59 @@
             border-radius: 5px;
             margin-bottom: 10px;
             font-size: 14px;
+            animation: fadeIn 0.5s ease;
         }
-        
-        /* 新增：更新提示 */
-        #updateAlert {
-            display: none;
-            background: #4CAF50;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        
-        /* 新增：安装按钮 */
-        #installBtn {
-            width: 100%;
-            padding: 10px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            display: none; /* 默认隐藏 */
-        }
-        
-        /* 新增：保存反馈 */
-        .save-feedback {
+
+        /* 操作反馈效果 */
+        .feedback-toast {
             position: fixed;
             bottom: 20px;
             left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            z-index: 1000;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 2000;
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            max-width: 80%;
+            text-align: center;
+        }
+
+        .feedback-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* 安装提示动画 */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <button id="installBtn">安装应用到桌面</button>
-        <div id="updateAlert">有新版本可用，点击刷新</div>
         <div id="offlineAlert">当前处于离线状态，数据将保存在本地</div>
         
         <h1 class="page-title">工资计算器</h1>
+
+        <div class="install-container">
+            <button id="installBtn" class="pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293V6.5z"/>
+                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
+                </svg>
+                安装应用
+            </button>
+        </div>
 
         <div class="mode-switch">
             <button class="mode-btn active" onclick="switchMode('month')">按月计算</button>
@@ -524,7 +610,7 @@
             </div>
             
             <!-- 自定义费用容器 -->
-           <div id="customExpensesContainer"></div>
+            <div id="customExpensesContainer"></div>
 
             <div class="stat-item total-sum">
                 <span>合计总额：</span>
@@ -549,18 +635,34 @@
             </div>
         </div>
         
-        <!-- 保存反馈提示 -->
-        <div class="save-feedback" id="saveFeedback">✓ 已保存</div>
+        <!-- 操作反馈提示 -->
+        <div class="feedback-toast" id="feedbackToast"></div>
     </div>
 
     <script>
+        // PWA安装相关变量
+        let deferredPrompt;
+        let isAppInstalled = false;
+        
         // 应用数据存储和逻辑
         let records = JSON.parse(localStorage.getItem('workRecords')) || {};
         let customExpenses = JSON.parse(localStorage.getItem('customExpenses')) || [];
         let currentDate = new Date();
         let selectedDateKey = null;
         let touchStartX = 0;
-        let deferredPrompt = null; // 用于PWA安装提示
+        
+        // DOM元素
+        const installBtn = document.getElementById('installBtn');
+        const feedbackToast = document.getElementById('feedbackToast');
+
+        // 显示操作反馈
+        function showFeedback(message) {
+            feedbackToast.textContent = message;
+            feedbackToast.classList.add('show');
+            setTimeout(() => {
+                feedbackToast.classList.remove('show');
+            }, 2000);
+        }
 
         // 数据备份和恢复功能
         function backupData() {
@@ -571,7 +673,6 @@
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('dataBackup', JSON.stringify(backup));
-            showSaveFeedback();
         }
 
         function restoreBackup() {
@@ -586,15 +687,6 @@
             }
         }
 
-        // 显示保存反馈
-        function showSaveFeedback() {
-            const feedback = document.getElementById('saveFeedback');
-            feedback.style.opacity = '1';
-            setTimeout(() => {
-                feedback.style.opacity = '0';
-            }, 2000);
-        }
-
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             // 注册Service Worker
@@ -602,49 +694,14 @@
                 navigator.serviceWorker.register('sw.js')
                     .then(reg => {
                         console.log('Service Worker 已注册');
-                        
-                        // 监听更新
-                        reg.addEventListener('updatefound', () => {
-                            const newWorker = reg.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed') {
-                                    if (navigator.serviceWorker.controller) {
-                                        // 有新版本可用
-                                        document.getElementById('updateAlert').style.display = 'block';
-                                    }
-                                }
-                            });
-                        });
+                        // 检查是否已安装
+                        if (window.matchMedia('(display-mode: standalone)').matches) {
+                            isAppInstalled = true;
+                            installBtn.style.display = 'none';
+                        }
                     })
                     .catch(err => console.error('Service Worker 注册失败:', err));
             }
-            
-            // PWA安装提示
-            window.addEventListener('beforeinstallprompt', (e) => {
-                e.preventDefault();
-                deferredPrompt = e;
-                document.getElementById('installBtn').style.display = 'block';
-            });
-            
-            document.getElementById('installBtn').addEventListener('click', () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            console.log('用户同意安装');
-                        } else {
-                            console.log('用户不同意安装');
-                        }
-                        deferredPrompt = null;
-                        document.getElementById('installBtn').style.display = 'none';
-                    });
-                }
-            });
-            
-            // 更新提示点击事件
-            document.getElementById('updateAlert').addEventListener('click', () => {
-                window.location.reload();
-            });
             
             // 恢复备份数据
             restoreBackup();
@@ -699,12 +756,60 @@
             
             // 数据变化时自动备份
             document.getElementById('dailyWageInput').addEventListener('change', backupData);
+            
+            // PWA安装事件处理
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // 阻止默认安装提示
+                e.preventDefault();
+                // 保存事件以便稍后触发
+                deferredPrompt = e;
+                // 显示安装按钮
+                installBtn.style.display = 'flex';
+            });
+            
+            // 安装按钮点击事件
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    // 显示安装提示
+                    deferredPrompt.prompt();
+                    // 等待用户响应
+                    const { outcome } = await deferredPrompt.userChoice;
+                    // 根据结果进行操作
+                    if (outcome === 'accepted') {
+                        console.log('用户接受了安装提示');
+                        showFeedback('应用安装中...');
+                        installBtn.style.display = 'none';
+                        isAppInstalled = true;
+                    } else {
+                        console.log('用户拒绝了安装提示');
+                        showFeedback('安装已取消');
+                    }
+                    // 清除保存的事件
+                    deferredPrompt = null;
+                }
+            });
+            
+            // 应用启动事件
+            window.addEventListener('appinstalled', () => {
+                console.log('应用已安装');
+                installBtn.style.display = 'none';
+                isAppInstalled = true;
+                showFeedback('应用已成功安装！');
+            });
         });
         
         // 更新网络状态显示
         function updateOnlineStatus() {
             const offlineAlert = document.getElementById('offlineAlert');
-            offlineAlert.style.display = navigator.onLine ? 'none' : 'block';
+            if (!navigator.onLine) {
+                offlineAlert.style.display = 'block';
+                showFeedback('已进入离线模式');
+            } else {
+                offlineAlert.style.display = 'none';
+                if (!isAppInstalled) {
+                    installBtn.classList.add('pulse');
+                }
+            }
         }
         
         // 设置自定义日期范围为当前月
@@ -804,7 +909,8 @@
                 saveCustomExpenses();
                 renderCustomExpenses();
                 calculateStats();
-                backupData(); // 添加备份
+                backupData();
+                showFeedback('已添加自定义费用');
             }
             document.getElementById('customModal').style.display = 'none';
         }
@@ -814,14 +920,15 @@
             saveCustomExpenses();
             renderCustomExpenses();
             calculateStats();
-            backupData(); // 添加备份
+            backupData();
+            showFeedback('已删除自定义费用');
         }
 
         function renderCustomExpenses() {
             const container = document.getElementById('customExpensesContainer');
             container.innerHTML = customExpenses.map(item => `
                 <div class="custom-expense-item">
-                    <span>${item.name}：</span>
+                    <span>${item.name}</span>
                     <span style="color:${item.amount < 0 ? '#ff4444' : '#4CAF50'}">
                         ${item.amount >= 0 ? '+' : ''}${item.amount.toFixed(2)}元
                     </span>
@@ -891,7 +998,7 @@
             localStorage.setItem('workRecords', JSON.stringify(records));
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
             calculateStats();
-            backupData(); // 添加备份
+            backupData();
         }
         function saveCustomExpenses() {
             localStorage.setItem('customExpenses', JSON.stringify(customExpenses));
@@ -910,6 +1017,7 @@
             
             updateDateDisplay();
             calculateStats();
+            showFeedback(`已切换到${mode === 'month' ? '按月计算' : '自定义日期计算'}模式`);
         }
 
         function resetData() {
@@ -921,7 +1029,8 @@
                 generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
                 renderCustomExpenses();
                 calculateStats();
-                backupData(); // 添加备份
+                backupData();
+                showFeedback('已清除所有数据');
             }
         }
 
@@ -964,8 +1073,10 @@
                         status: status,
                         expense: expense
                     };
+                    showFeedback('数据已保存');
                 } else {
                     delete records[selectedDateKey];
+                    showFeedback('已清除状态');
                 }
                 saveAndUpdate();
             }
@@ -1009,9 +1120,11 @@
                 if (diffX > 0) {
                     // 向右滑动 - 下一个月
                     goNextMonth();
+                    showFeedback('已切换到下一个月');
                 } else {
                     // 向左滑动 - 上一个月
                     goPrevMonth();
+                    showFeedback('已切换到上一个月');
                 }
             }
             
