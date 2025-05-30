@@ -1,5 +1,5 @@
 // 缓存名称
-const CACHE_NAME = 'salary-calculator-v2.1';
+const CACHE_NAME = 'salary-calculator-v3';
 // 需要缓存的资源
 const urlsToCache = [
   '/',
