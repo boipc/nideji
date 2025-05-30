@@ -1,11 +1,11 @@
 {
   "name": "工资计算器",
-  "short_name": "工资计算",
+  "short_name": "工资计算器",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#2196F3",
   "theme_color": "#2196F3",
-  "description": "离线可用的工资计算工具，支持日历标记和工作统计",
+  "description": "一款实用的工资计算器应用，支持打卡记录和费用管理",
   "icons": [
     {
       "src": "icon-192x192.png",
