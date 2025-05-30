@@ -445,16 +445,37 @@
             opacity: 0;
             transition: opacity 0.3s;
         }
+        
+        /* 安装按钮样式 */
+        #installButton {
+            display: none;
+            width: 100%;
+            padding: 12px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        #installButton:hover {
+            background: #1976D2;
+        }
     </style>
 </head>
 <body>
     <div id="updateAlert" class="top-alert">
-          有新版本可用！<a href="javascript:void(0)" onclick="location.reload()" style="color: white; text-decoration: underline; margin-left: 10px;">点击更新</a>
+        有新版本可用！<a href="javascript:void(0)" onclick="updateApp()" style="color: white; text-decoration: underline; margin-left: 10px;">点击更新</a>
         <button class="close-alert" onclick="closeAlert('updateAlert')">×</button>
     </div>
     
     <div id="installAlert" class="top-alert">
-        将此应用安装到桌面以便更好地使用！
+        首次使用工资计算器！<button id="installButton">安装应用到桌面</button>
         <button class="close-alert" onclick="closeAlert('installAlert')">×</button>
     </div>
 
@@ -478,7 +499,7 @@
         </div>
         
         <!-- 日历容器 -->
-        <div class="calendar-container">
+       <div class="calendar-container">
             <div class="weekdays">
                 <div class="weekday">日</div>
                 <div class="weekday">一</div>
@@ -571,6 +592,7 @@
         let selectedDateKey = null;
         let touchStartX = 0;
         let deferredPrompt = null;
+        let appVersion = '1.0.1'; // 当前应用版本
         
         // 数据备份和恢复功能
         function backupData() {
@@ -597,8 +619,28 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            // 模拟Service Worker注册（实际部署时需要sw.js文件）
-            console.log('离线缓存功能已启用');
+            // 注册Service Worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => {
+                        console.log('Service Worker 已注册');
+                        
+                        // 检查更新
+                        reg.update();
+                        
+                        // 监听更新
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // 新版本可用
+                                    document.getElementById('updateAlert').style.display = 'block';
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.error('Service Worker 注册失败:', err));
+            }
             
             // 恢复备份数据
             restoreBackup();
@@ -656,30 +698,43 @@
             
             // 检查是否第一次访问
             if (!localStorage.getItem('firstVisitShown')) {
+                document.getElementById('installAlert').style.display = 'block';
+                localStorage.setItem('firstVisitShown', 'true');
+                
+                // 10秒后自动隐藏
                 setTimeout(() => {
-                    document.getElementById('installAlert').style.display = 'block';
-                    localStorage.setItem('firstVisitShown', 'true');
-                    
-                    // 10秒后自动隐藏
-                    setTimeout(() => {
-                        document.getElementById('installAlert').style.display = 'none';
-                    }, 10000);
-                }, 1000);
+                    document.getElementById('installAlert').style.display = 'none';
+                }, 10000);
             }
             
             // 监听安装提示
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
+                
+                // 显示安装按钮
+                const installButton = document.getElementById('installButton');
+                installButton.style.display = 'block';
+                
+                installButton.addEventListener('click', () => {
+                    // 显示安装提示
+                    deferredPrompt.prompt();
+                    
+                    // 等待用户选择
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('用户同意安装');
+                        } else {
+                            console.log('用户取消安装');
+                        }
+                        deferredPrompt = null;
+                        installButton.style.display = 'none';
+                    });
+                });
             });
             
-            // 检查是否有新版本（模拟）
-            setTimeout(() => {
-                const showUpdate = Math.random() > 0.5;
-                if (showUpdate) {
-                    document.getElementById('updateAlert').style.display = 'block';
-                }
-            }, 3000);
+            // 检查版本更新
+           checkVersionUpdate();
         });
         
         // 关闭提示
@@ -717,6 +772,38 @@
                     document.body.removeChild(messageEl);
                 }, 300);
             }, duration);
+        }
+
+        // 检查版本更新
+        function checkVersionUpdate() {
+            const lastVersion = localStorage.getItem('appVersion');
+            
+            if (!lastVersion || lastVersion !== appVersion) {
+                // 新版本
+                document.getElementById('updateAlert').style.display = 'block';
+                localStorage.setItem('appVersion', appVersion);
+            }
+        }
+        
+        // 更新应用
+        function updateApp() {
+            // 清除缓存并重新加载
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (const registration of registrations) {
+                        registration.unregister();
+                    }
+                    caches.keys().then(cacheNames => {
+                        for (const cacheName of cacheNames) {
+                            caches.delete(cacheName);
+                        }
+                        localStorage.setItem('appVersion', appVersion);
+                        location.reload(true);
+                    });
+                });
+            } else {
+                location.reload(true);
+            }
         }
 
         // 生成日历
@@ -765,7 +852,7 @@
         }
 
         // 自定义费用功能
-       function showCustomModal() {
+        function showCustomModal() {
             document.getElementById('customModal').style.display = 'flex';
             document.getElementById('customName').value = '';
             document.getElementById('customAmount').value = '';
