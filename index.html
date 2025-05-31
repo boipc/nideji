@@ -911,10 +911,22 @@
                 navigator.serviceWorker.register('./sw.js')
                     .then(reg => {
                         console.log('Service Worker 已注册');
+                        
                         // 检查是否已安装
                         if (window.matchMedia('(display-mode: standalone)').matches) {
                             isAppInstalled = true;
                         }
+                        
+                        // 监听Service Worker更新
+                        reg.addEventListener('updatefound', () => {
+                            const newWorker = reg.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('新版本可用，请刷新');
+                                    showFeedback('新版本可用，请刷新页面');
+                                }
+                            });
+                        });
                     })
                     .catch(err => console.error('Service Worker 注册失败:', err));
             }
@@ -1375,7 +1387,7 @@
         
         // 关于应用
         function showAbout() {
-            alert('一键工达 v3.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持离线使用');
+            alert('一键工达 v3.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 完美支持离线使用');
             closeMenu();
         }
     </script>
