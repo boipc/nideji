@@ -648,6 +648,15 @@
             </div>
         </div>
 
+        <div class="install-container" id="installContainer" style="display: none;">
+            <button id="installBtn" class="pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
+                    <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>
+                </svg>
+                添加到桌面
+            </button>
+        </div>
+
         <div class="mode-switch">
             <button class="mode-btn active" onclick="switchMode('month')">按月计算</button>
             <button class="mode-btn" onclick="switchMode('custom')">自定义日期计算</button>
@@ -811,6 +820,8 @@
         const menuPanel = document.getElementById('menuPanel');
         const menuOverlay = document.getElementById('menuOverlay');
         const feedbackToast = document.getElementById('feedbackToast');
+        const installContainer = document.getElementById('installContainer');
+        const installBtn = document.getElementById('installBtn');
 
         // 显示操作反馈
         function showFeedback(message) {
@@ -941,6 +952,10 @@
                 e.preventDefault();
                 // 保存事件以便稍后触发
                 deferredPrompt = e;
+                
+                // 显示页面上的安装按钮
+                installContainer.style.display = 'flex';
+                
                 // 显示菜单中的安装按钮
                 document.getElementById('menuInstallBtn').style.display = 'flex';
             });
@@ -955,6 +970,7 @@
                         if (choiceResult.outcome === 'accepted') {
                             console.log('用户接受了安装提示');
                             showFeedback('应用安装中...');
+                            installContainer.style.display = 'none';
                             document.getElementById('menuInstallBtn').style.display = 'none';
                             isAppInstalled = true;
                         } else {
@@ -973,6 +989,7 @@
             // 应用启动事件
             window.addEventListener('appinstalled', () => {
                 console.log('应用已安装');
+                installContainer.style.display = 'none';
                 document.getElementById('menuInstallBtn').style.display = 'none';
                 isAppInstalled = true;
                 showFeedback('应用已成功安装！');
@@ -981,6 +998,9 @@
             // 菜单按钮事件
             menuBtn.addEventListener('click', openMenu);
             menuOverlay.addEventListener('click', closeMenu);
+            
+            // 安装按钮事件
+            installBtn.addEventListener('click', triggerInstall);
         });
         
         // 更新网络状态显示
