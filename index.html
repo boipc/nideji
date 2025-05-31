@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#FF9800">
-    <title>日工记录工资统计系统</title>
+    <title>一键工达</title>
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" href="./icon-192x192.png">
     <style>
@@ -16,6 +16,7 @@
             --default-status: #e0e0e0;   /* 统一未选中时的浅灰色 */
             --install-btn-color: #4CAF50;
             --feedback-scale: 0.95;
+            --header-gradient: linear-gradient(135deg, #FF9800, #FF5722);
         }
 
         * {
@@ -26,10 +27,14 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
             padding: 10px;
             background: #f0f2f5;
             transition: background-color 0.3s;
+            color: #333;
+            background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                         url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f2f5"/><path d="M0 50 L100 50 M50 0 L50 100" stroke="%23e0e0e0" stroke-width="0.5"/></svg>');
+            background-size: 30px 30px;
         }
 
         .container {
@@ -43,20 +48,34 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 15px;
+            background: var(--header-gradient);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            padding: 0 10px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .page-title {
+        .header-content {
             flex: 1;
+            padding: 12px 0;
             text-align: center;
+        }
+
+        .main-title {
             color: white;
-            font-size: 20px;
+            font-size: 24px;
             font-weight: bold;
-            padding: 10px;
-            background: linear-gradient(135deg, #FF9800, #FF5722);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .sub-title {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            margin-top: 4px;
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            font-weight: 500;
         }
 
         .menu-btn {
@@ -88,39 +107,6 @@
             transform: scale(var(--feedback-scale));
         }
 
-        .install-container {
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
-            animation: fadeIn 0.8s ease-out;
-        }
-
-        #installBtn {
-            background: var(--install-btn-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        #installBtn:hover {
-            background: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 12px rgba(0,0,0,0.25);
-        }
-
-        #installBtn:active {
-            transform: translateY(0) scale(0.98);
-        }
-
         .mode-switch {
             display: flex;
             gap: 5px;
@@ -129,19 +115,22 @@
 
         .mode-btn {
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             background: #e0e0e0;
             color: #666;
             cursor: pointer;
             font-size: 14px;
             transition: all 0.2s ease;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .mode-btn.active {
             background: var(--primary-color);
             color: white;
+            box-shadow: 0 2px 6px rgba(33, 150, 243, 0.4);
         }
 
         .mode-btn:active {
@@ -200,6 +189,7 @@
             justify-content: flex-start;
             align-items: center;
             transition: all 0.2s ease;
+            background: white;
         }
 
         .day-box:active {
@@ -353,6 +343,8 @@
             text-align: left;
             -moz-appearance: textfield;
             transition: border-color 0.2s;
+            font-weight: bold;
+            color: #2196F3;
         }
 
         #dailyWageInput:focus {
@@ -418,6 +410,7 @@
             padding: 5px 10px;
             cursor: pointer;
             transition: 0.3s;
+            font-weight: bold;
         }
 
         .add-custom-btn:active {
@@ -487,6 +480,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            justify-content: center;
         }
         
         .nav-arrow {
@@ -497,15 +491,25 @@
             padding: 4px;
             user-select: none;
             transition: all 0.2s;
+            background: rgba(33, 150, 243, 0.1);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .nav-arrow:active {
             transform: scale(var(--feedback-scale));
+            background: rgba(33, 150, 243, 0.2);
         }
         
         #currentWorkMonth {
             font-weight: bold;
             color: #333;
+            min-width: 120px;
+            text-align: center;
         }
         
         /* 离线提示 */
@@ -562,7 +566,7 @@
             right: -300px;
             width: 280px;
             height: 100%;
-            background: white;
+            background: var(--header-gradient);
             z-index: 2000;
             box-shadow: -2px 0 10px rgba(0,0,0,0.2);
             transition: transform 0.3s ease;
@@ -582,19 +586,19 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
         }
         
         .menu-title {
             font-size: 18px;
             font-weight: bold;
-            color: #333;
+            color: white;
         }
         
         .close-menu-btn {
             font-size: 24px;
             cursor: pointer;
-            color: #666;
+            color: white;
             transition: all 0.2s;
         }
         
@@ -603,24 +607,27 @@
         }
         
         .menu-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 10px;
             transition: all 0.2s;
+            color: white;
+            border-radius: 6px;
+            margin: 5px 0;
         }
         
         .menu-item:active {
             transform: scale(var(--feedback-scale));
-            background: #f9f9f9;
+            background: rgba(255,255,255,0.15);
         }
         
         .menu-item svg {
             width: 20px;
             height: 20px;
-            fill: #666;
+            fill: white;
         }
         
         .menu-overlay {
@@ -633,6 +640,52 @@
             display: none;
             z-index: 1999;
         }
+        
+        /* 菜单安装按钮动画 */
+        .menu-install-pulse {
+            animation: pulse 1.5s infinite;
+            position: relative;
+        }
+        
+        .menu-install-pulse::after {
+            content: "";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0.8; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
+            100% { opacity: 0.8; transform: scale(0.8); }
+        }
+        
+        /* 装饰元素 */
+        .decoration {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            z-index: 0;
+        }
+        
+        .dec-1 {
+            top: -30px;
+            right: -30px;
+        }
+        
+        .dec-2 {
+            bottom: -20px;
+            left: -20px;
+            width: 60px;
+            height: 60px;
+        }
     </style>
 </head>
 <body>
@@ -640,21 +693,17 @@
         <div id="offlineAlert">当前处于离线状态，数据将保存在本地</div>
         
         <div class="header-container">
-            <h1 class="page-title">工资计算器</h1>
+            <div class="decoration dec-1"></div>
+            <div class="decoration dec-2"></div>
+            <div class="header-content">
+                <div class="main-title">一键工达</div>
+                <div class="sub-title">从记录到工资单，只需一键的距离</div>
+            </div>
             <div class="menu-btn" id="menuBtn">
                 <span></span>
                 <span></span>
                 <span></span>
             </div>
-        </div>
-
-        <div class="install-container" id="installContainer" style="display: none;">
-            <button id="installBtn" class="pulse">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white">
-                    <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>
-                </svg>
-                添加到桌面
-            </button>
         </div>
 
         <div class="mode-switch">
@@ -761,16 +810,18 @@
         <!-- 菜单面板 -->
         <div class="menu-overlay" id="menuOverlay"></div>
         <div class="menu-panel" id="menuPanel">
+            <div class="decoration dec-1"></div>
+            <div class="decoration dec-2"></div>
             <div class="menu-header">
                 <div class="menu-title">系统菜单</div>
                 <div class="close-menu-btn" onclick="closeMenu()">×</div>
             </div>
             
-            <div class="menu-item" id="menuInstallBtn" onclick="triggerInstall()">
+            <div class="menu-item menu-install-pulse" id="menuInstallBtn" onclick="triggerInstall()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>
                 </svg>
-                <span>安装应用</span>
+                <span>安装应用到桌面</span>
             </div>
             
             <div class="menu-item" onclick="resetData()">
@@ -820,8 +871,7 @@
         const menuPanel = document.getElementById('menuPanel');
         const menuOverlay = document.getElementById('menuOverlay');
         const feedbackToast = document.getElementById('feedbackToast');
-        const installContainer = document.getElementById('installContainer');
-        const installBtn = document.getElementById('installBtn');
+        const menuInstallBtn = document.getElementById('menuInstallBtn');
 
         // 显示操作反馈
         function showFeedback(message) {
@@ -886,7 +936,7 @@
                         // 检查是否已安装
                         if (window.matchMedia('(display-mode: standalone)').matches) {
                             isAppInstalled = true;
-                            document.getElementById('menuInstallBtn').style.display = 'none';
+                            menuInstallBtn.style.display = 'none';
                         }
                     })
                     .catch(err => console.error('Service Worker 注册失败:', err));
@@ -953,11 +1003,9 @@
                 // 保存事件以便稍后触发
                 deferredPrompt = e;
                 
-                // 显示页面上的安装按钮
-                installContainer.style.display = 'flex';
-                
-                // 显示菜单中的安装按钮
-                document.getElementById('menuInstallBtn').style.display = 'flex';
+                // 显示菜单中的安装按钮并添加脉冲动画
+                menuInstallBtn.style.display = 'flex';
+                menuInstallBtn.classList.add('menu-install-pulse');
             });
             
             // 安装按钮点击事件
@@ -970,8 +1018,8 @@
                         if (choiceResult.outcome === 'accepted') {
                             console.log('用户接受了安装提示');
                             showFeedback('应用安装中...');
-                            installContainer.style.display = 'none';
-                            document.getElementById('menuInstallBtn').style.display = 'none';
+                            menuInstallBtn.style.display = 'none';
+                            menuInstallBtn.classList.remove('menu-install-pulse');
                             isAppInstalled = true;
                         } else {
                             console.log('用户拒绝了安装提示');
@@ -989,8 +1037,8 @@
             // 应用启动事件
             window.addEventListener('appinstalled', () => {
                 console.log('应用已安装');
-                installContainer.style.display = 'none';
-                document.getElementById('menuInstallBtn').style.display = 'none';
+                menuInstallBtn.style.display = 'none';
+                menuInstallBtn.classList.remove('menu-install-pulse');
                 isAppInstalled = true;
                 showFeedback('应用已成功安装！');
             });
@@ -998,9 +1046,6 @@
             // 菜单按钮事件
             menuBtn.addEventListener('click', openMenu);
             menuOverlay.addEventListener('click', closeMenu);
-            
-            // 安装按钮事件
-            installBtn.addEventListener('click', triggerInstall);
         });
         
         // 更新网络状态显示
@@ -1336,7 +1381,7 @@
         
         // 关于应用
         function showAbout() {
-            alert('工资计算器 v1.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持数据备份和恢复\n5. 支持离线使用');
+            alert('一键工达 v1.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持数据备份和恢复\n5. 支持离线使用');
             closeMenu();
         }
     </script>
