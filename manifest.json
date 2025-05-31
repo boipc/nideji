@@ -50,7 +50,7 @@ self.addEventListener('fetch', event => {
   
   // 处理本地资源请求
   event.respondWith(
-    caches.match(event.request, {ignoreSearch: true})
+    caches.match(event.request)
       .then(response => {
         // 如果缓存中有资源，则返回缓存内容
         if (response) {
