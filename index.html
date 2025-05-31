@@ -1007,6 +1007,17 @@
             // 菜单按钮事件
             menuBtn.addEventListener('click', openMenu);
             menuOverlay.addEventListener('click', closeMenu);
+            
+            // 使用事件委托绑定日历点击事件
+            document.getElementById('calendar').addEventListener('click', function(event) {
+                const dayBox = event.target.closest('.day-box');
+                if (dayBox) {
+                    const dateKey = dayBox.dataset.dateKey;
+                    if (dateKey) {
+                        showEditModal(dateKey);
+                    }
+                }
+            });
         });
         
         // 更新网络状态显示
@@ -1074,13 +1085,12 @@
                 const dateKey = `${year}-${pad(month+1)}-${pad(d)}`;
                 const day = document.createElement('div');
                 day.className = 'day-box';
+                day.dataset.dateKey = dateKey; // 存储日期key用于事件委托
                 
                 // 标记今天
                 if (isCurrentMonth && d === today.getDate()) {
                     day.classList.add('today');
                 }
-                
-                day.onclick = () => showEditModal(dateKey);
                 
                 const record = records[dateKey] || {};
                 const statusText = getStatusText(record.status);
@@ -1387,7 +1397,7 @@
         
         // 关于应用
         function showAbout() {
-            alert('一键工达 v3.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 完美支持离线使用');
+            alert('一键工达 v3.10\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持离线使用');
             closeMenu();
         }
     </script>
