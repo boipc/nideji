@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#FF9800",
-  "description": "便捷的工资计算工具，支持记录工作状态、生活费用和工资统计",
+  "description": "用于记录和计算日工工资，支持按月统计和自定义日期范围计算",
   "orientation": "portrait",
   "icons": [
     {
