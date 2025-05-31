@@ -1,5 +1,6 @@
 // sw.js - Service Worker 文件
-const CACHE_NAME = 'salary-calculator-v2.0';
+const CACHE_NAME = 'salary-calculator-v3.0';
+const OFFLINE_URL = 'offline.html';
 const urlsToCache = [
   './',
   './index.html',
@@ -16,6 +17,7 @@ self.addEventListener('install', event => {
         console.log('[Service Worker] 缓存核心文件');
         return cache.addAll(urlsToCache);
       })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -43,18 +45,24 @@ self.addEventListener('activate', event => {
 
 // 拦截请求并返回缓存内容
 self.addEventListener('fetch', event => {
-  // 处理API请求或外部资源
-  if (event.request.url.includes('http') && !event.request.url.startsWith(self.location.origin)) {
-    return fetch(event.request);
+  // 处理导航请求的特殊情况
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          // 网络请求失败时返回缓存的index.html
+          return caches.match('./index.html');
+        })
+    );
+    return;
   }
-  
-  // 处理本地资源请求
+
+  // 处理其他请求
   event.respondWith(
     caches.match(event.request)
       .then(response => {
         // 如果缓存中有资源，则返回缓存内容
         if (response) {
-          console.log(`[Service Worker] 从缓存返回: ${event.request.url}`);
           return response;
         }
         
@@ -71,22 +79,24 @@ self.addEventListener('fetch', event => {
 
             caches.open(CACHE_NAME)
               .then(cache => {
-                console.log(`[Service Worker] 缓存新资源: ${event.request.url}`);
                 cache.put(event.request, responseToCache);
               });
 
             return response;
           })
-          .catch(error => {
-            // 网络请求失败时返回离线页面
-            console.error('[Service Worker] 获取失败:', error);
-            return caches.match('./index.html');
+          .catch(() => {
+            // 对于非导航请求，返回错误响应
+            return new Response('离线不可用', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({'Content-Type': 'text/plain'})
+            });
           });
       })
   );
 });
 
-// 监听消息事件（用于更新UI）
+// 监听消息事件
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
