@@ -38,10 +38,17 @@
             padding-bottom: 20px;
         }
 
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
         .page-title {
+            flex: 1;
             text-align: center;
             color: white;
-            margin: 10px 0 15px;
             font-size: 20px;
             font-weight: bold;
             padding: 10px;
@@ -50,6 +57,35 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
+        }
+
+        .menu-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px;
+            margin-left: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: white;
+            margin: 2px 0;
+            border-radius: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-btn:active {
+            transform: scale(var(--feedback-scale));
         }
 
         .install-container {
@@ -518,22 +554,98 @@
         .pulse {
             animation: pulse 1.5s infinite;
         }
+        
+        /* 菜单面板样式 */
+        .menu-panel {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100%;
+            background: white;
+            z-index: 2000;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .menu-panel.active {
+            transform: translateX(-300px);
+        }
+        
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .menu-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .close-menu-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .close-menu-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .menu-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+        
+        .menu-item:active {
+            transform: scale(var(--feedback-scale));
+            background: #f9f9f9;
+        }
+        
+        .menu-item svg {
+            width: 20px;
+            height: 20px;
+            fill: #666;
+        }
+        
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            display: none;
+            z-index: 1999;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="offlineAlert">当前处于离线状态，数据将保存在本地</div>
         
-        <h1 class="page-title">工资计算器</h1>
-
-        <div class="install-container">
-            <button id="installBtn" class="pulse">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8.5 6.5a.5.5 0 0 0-1 0v3.793L6.354 9.146a.5.5 0 1 0-.708.708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8.5 10.293V6.5z"/>
-                    <path d="M14 14V4.5L9.5 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2zM9.5 3A1.5 1.5 0 0 0 11 4.5h2V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h5.5v2z"/>
-                </svg>
-                安装应用
-            </button>
+        <div class="header-container">
+            <h1 class="page-title">工资计算器</h1>
+            <div class="menu-btn" id="menuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
         </div>
 
         <div class="mode-switch">
@@ -616,9 +728,8 @@
                 <span>合计总额：</span>
                 <div class="stat-value">
                     <span id="netIncome">0.00</span> 元
-                </div>
             </div>
-            <button class="reset-btn" onclick="resetData()">清除所有数据</button>
+            </div>
         </div>
 
         <div class="modal-overlay" id="editModal">
@@ -637,6 +748,50 @@
         
         <!-- 操作反馈提示 -->
         <div class="feedback-toast" id="feedbackToast"></div>
+        
+        <!-- 菜单面板 -->
+        <div class="menu-overlay" id="menuOverlay"></div>
+        <div class="menu-panel" id="menuPanel">
+            <div class="menu-header">
+                <div class="menu-title">系统菜单</div>
+                <div class="close-menu-btn" onclick="closeMenu()">×</div>
+            </div>
+            
+            <div class="menu-item" id="menuInstallBtn" onclick="triggerInstall()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>
+                </svg>
+                <span>安装应用</span>
+            </div>
+            
+            <div class="menu-item" onclick="resetData()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                </svg>
+                <span>清除所有数据</span>
+            </div>
+            
+            <div class="menu-item" onclick="backupData()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+                </svg>
+                <span>备份数据</span>
+            </div>
+            
+            <div class="menu-item" onclick="restoreBackup()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+                </svg>
+                <span>恢复数据</span>
+            </div>
+            
+            <div class="menu-item" onclick="showAbout()">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
+                </svg>
+                <span>关于应用</span>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -652,7 +807,9 @@
         let touchStartX = 0;
         
         // DOM元素
-        const installBtn = document.getElementById('installBtn');
+        const menuBtn = document.getElementById('menuBtn');
+        const menuPanel = document.getElementById('menuPanel');
+        const menuOverlay = document.getElementById('menuOverlay');
         const feedbackToast = document.getElementById('feedbackToast');
 
         // 显示操作反馈
@@ -673,6 +830,7 @@
                 timestamp: new Date().toISOString()
             };
             localStorage.setItem('dataBackup', JSON.stringify(backup));
+            showFeedback('数据已备份');
         }
 
         function restoreBackup() {
@@ -684,7 +842,27 @@
                 generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
                 renderCustomExpenses();
                 calculateStats();
+                showFeedback('数据已恢复');
+            } else {
+                showFeedback('没有找到备份数据');
             }
+        }
+
+        // 菜单功能
+        function openMenu() {
+            menuPanel.classList.add('active');
+            menuOverlay.style.display = 'block';
+            setTimeout(() => {
+                menuOverlay.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeMenu() {
+            menuPanel.classList.remove('active');
+            menuOverlay.style.opacity = '0';
+            setTimeout(() => {
+                menuOverlay.style.display = 'none';
+            }, 300);
         }
 
         // 初始化
@@ -697,7 +875,7 @@
                         // 检查是否已安装
                         if (window.matchMedia('(display-mode: standalone)').matches) {
                             isAppInstalled = true;
-                            installBtn.style.display = 'none';
+                            document.getElementById('menuInstallBtn').style.display = 'none';
                         }
                     })
                     .catch(err => console.error('Service Worker 注册失败:', err));
@@ -763,39 +941,46 @@
                 e.preventDefault();
                 // 保存事件以便稍后触发
                 deferredPrompt = e;
-                // 显示安装按钮
-                installBtn.style.display = 'flex';
+                // 显示菜单中的安装按钮
+                document.getElementById('menuInstallBtn').style.display = 'flex';
             });
             
             // 安装按钮点击事件
-            installBtn.addEventListener('click', async () => {
+            function triggerInstall() {
                 if (deferredPrompt) {
                     // 显示安装提示
                     deferredPrompt.prompt();
                     // 等待用户响应
-                    const { outcome } = await deferredPrompt.userChoice;
-                    // 根据结果进行操作
-                    if (outcome === 'accepted') {
-                        console.log('用户接受了安装提示');
-                        showFeedback('应用安装中...');
-                        installBtn.style.display = 'none';
-                        isAppInstalled = true;
-                    } else {
-                        console.log('用户拒绝了安装提示');
-                        showFeedback('安装已取消');
-                    }
-                    // 清除保存的事件
-                    deferredPrompt = null;
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('用户接受了安装提示');
+                            showFeedback('应用安装中...');
+                            document.getElementById('menuInstallBtn').style.display = 'none';
+                            isAppInstalled = true;
+                        } else {
+                            console.log('用户拒绝了安装提示');
+                            showFeedback('安装已取消');
+                        }
+                        // 清除保存的事件
+                        deferredPrompt = null;
+                    });
+                } else {
+                    showFeedback('应用已安装或当前浏览器不支持');
                 }
-            });
+                closeMenu();
+            }
             
             // 应用启动事件
             window.addEventListener('appinstalled', () => {
                 console.log('应用已安装');
-                installBtn.style.display = 'none';
+                document.getElementById('menuInstallBtn').style.display = 'none';
                 isAppInstalled = true;
                 showFeedback('应用已成功安装！');
             });
+            
+            // 菜单按钮事件
+            menuBtn.addEventListener('click', openMenu);
+            menuOverlay.addEventListener('click', closeMenu);
         });
         
         // 更新网络状态显示
@@ -806,9 +991,6 @@
                 showFeedback('已进入离线模式');
             } else {
                 offlineAlert.style.display = 'none';
-                if (!isAppInstalled) {
-                    installBtn.classList.add('pulse');
-                }
             }
         }
         
@@ -1031,6 +1213,7 @@
                 calculateStats();
                 backupData();
                 showFeedback('已清除所有数据');
+                closeMenu();
             }
         }
 
@@ -1129,6 +1312,12 @@
             }
             
             touchStartX = 0;
+        }
+        
+        // 关于应用
+        function showAbout() {
+            alert('工资计算器 v1.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持数据备份和恢复\n5. 支持离线使用');
+            closeMenu();
         }
     </script>
 </body>
