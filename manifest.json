@@ -1,11 +1,11 @@
 {
-  "name": "工资计算器",
-  "short_name": "工资计算器",
+  "name": "一键工达",
+  "short_name": "一键工达",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#FF9800",
-  "description": "用于记录和计算日工工资，支持按月统计和自定义日期范围计算",
+  "description": "智能记录工作日，一键生成工资单。精准计算薪酬，让劳动价值清晰可见。",
   "orientation": "portrait",
   "icons": [
     {
