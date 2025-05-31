@@ -1,5 +1,5 @@
 // sw.js - Service Worker 文件
-const CACHE_NAME = 'salary-calculator-v3.0';
+const CACHE_NAME = 'salary-calculator-v3.1';
 const urlsToCache = [
   './',
   './index.html',
