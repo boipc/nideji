@@ -873,17 +873,14 @@
                 if (!Array.isArray(customExpenses)) {
                     customExpenses = [];
                 }
-                
-                showFeedback('数据加载成功');
             } catch (e) {
                 console.error('数据初始化失败:', e);
-                showFeedback('数据加载失败，已重置');
                 records = {};
                 customExpenses = [];
             }
         }
 
-        // 保存数据
+        // 保存数据到本地存储
         function saveDataToStorage() {
             try {
                 // 保存记录
@@ -895,15 +892,6 @@
                 // 保存日工单价
                 const dailyWage = document.getElementById('dailyWageInput').value;
                 localStorage.setItem('dailyWage', dailyWage);
-                
-                // 定期自动备份
-                const backup = {
-                    records: records,
-                    customExpenses: customExpenses,
-                    dailyWage: dailyWage,
-                    timestamp: new Date().toISOString()
-                };
-                localStorage.setItem('dataBackup', JSON.stringify(backup));
                 
                 return true;
             } catch (e) {
@@ -1014,7 +1002,6 @@
             const offlineAlert = document.getElementById('offlineAlert');
             if (!navigator.onLine) {
                 offlineAlert.style.display = 'block';
-                showFeedback('已进入离线模式');
             } else {
                 offlineAlert.style.display = 'none';
             }
@@ -1388,7 +1375,7 @@
         
         // 关于应用
         function showAbout() {
-            alert('一键工达 v2.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息），从记录到工资单，只需一键的距离\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持离线使用');
+            alert('一键工达 v3.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持离线使用');
             closeMenu();
         }
     </script>
