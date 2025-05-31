@@ -801,7 +801,7 @@
                 <div class="close-menu-btn" onclick="closeMenu()">×</div>
             </div>
             
-            <div class="menu-item menu-install-pulse" id="menuInstallBtn">
+            <div class="menu-item menu-install-pulse" id="menuInstallBtn" style="display: none;">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>
                 </svg>
@@ -813,20 +813,6 @@
                     <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
                 </svg>
                 <span>清除所有数据</span>
-            </div>
-            
-            <div class="menu-item" onclick="backupData()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
-                </svg>
-                <span>备份数据</span>
-            </div>
-            
-            <div class="menu-item" onclick="restoreBackup()">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
-                </svg>
-                <span>恢复数据</span>
             </div>
             
             <div class="menu-item" onclick="showAbout()">
@@ -844,8 +830,8 @@
         let isAppInstalled = false;
         
         // 应用数据存储和逻辑
-        let records = JSON.parse(localStorage.getItem('workRecords')) || {};
-        let customExpenses = JSON.parse(localStorage.getItem('customExpenses')) || [];
+        let records = {};
+        let customExpenses = [];
         let currentDate = new Date();
         let selectedDateKey = null;
         let touchStartX = 0;
@@ -866,78 +852,72 @@
             }, 2000);
         }
 
-        // 数据备份和恢复功能
-        function backupData() {
-            const backup = {
-                records: records,
-                customExpenses: customExpenses,
-                dailyWage: document.getElementById('dailyWageInput').value,
-                timestamp: new Date().toISOString()
-            };
-            localStorage.setItem('dataBackup', JSON.stringify(backup));
-            showFeedback('数据已备份');
-        }
-
-        function restoreBackup() {
-            const backup = JSON.parse(localStorage.getItem('dataBackup'));
-            if (backup) {
-                records = backup.records || {};
-                customExpenses = backup.customExpenses || [];
-                document.getElementById('dailyWageInput').value = backup.dailyWage || '350元';
-                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-                renderCustomExpenses();
-                calculateStats();
-                showFeedback('数据已恢复');
-            } else {
-                showFeedback('没有找到备份数据');
+        // 初始化数据
+        function initializeData() {
+            try {
+                // 从localStorage加载数据
+                const storedRecords = localStorage.getItem('workRecords');
+                const storedExpenses = localStorage.getItem('customExpenses');
+                
+                records = storedRecords ? JSON.parse(storedRecords) : {};
+                customExpenses = storedExpenses ? JSON.parse(storedExpenses) : [];
+                
+                // 设置默认日工单价
+                const dailyWage = localStorage.getItem('dailyWage');
+                document.getElementById('dailyWageInput').value = dailyWage || '350元';
+                
+                // 检查数据完整性
+                if (!records || typeof records !== 'object') {
+                    records = {};
+                }
+                if (!Array.isArray(customExpenses)) {
+                    customExpenses = [];
+                }
+                
+                showFeedback('数据加载成功');
+            } catch (e) {
+                console.error('数据初始化失败:', e);
+                showFeedback('数据加载失败，已重置');
+                records = {};
+                customExpenses = [];
             }
         }
 
-        // 菜单功能
-        function openMenu() {
-            menuPanel.classList.add('active');
-            menuOverlay.style.display = 'block';
-            setTimeout(() => {
-                menuOverlay.style.opacity = '1';
-            }, 10);
-        }
-
-        function closeMenu() {
-            menuPanel.classList.remove('active');
-            menuOverlay.style.opacity = '0';
-            setTimeout(() => {
-                menuOverlay.style.display = 'none';
-            }, 300);
-        }
-
-        // 触发PWA安装
-        function triggerInstall() {
-            if (deferredPrompt) {
-                // 显示安装提示
-                deferredPrompt.prompt();
-                // 等待用户响应
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('用户接受了安装提示');
-                        showFeedback('应用安装中...');
-                        menuInstallBtn.style.display = 'none';
-                        menuInstallBtn.classList.remove('menu-install-pulse');
-                        isAppInstalled = true;
-                    } else {
-                        console.log('用户拒绝了安装提示');
-                        showFeedback('安装已取消');
-                    }
-                    // 清除保存的事件
-                    deferredPrompt = null;
-                });
-            } else {
-                showFeedback('应用已安装或当前浏览器不支持');
+        // 保存数据
+        function saveDataToStorage() {
+            try {
+                // 保存记录
+                localStorage.setItem('workRecords', JSON.stringify(records));
+                
+                // 保存自定义费用
+                localStorage.setItem('customExpenses', JSON.stringify(customExpenses));
+                
+                // 保存日工单价
+                const dailyWage = document.getElementById('dailyWageInput').value;
+                localStorage.setItem('dailyWage', dailyWage);
+                
+                // 定期自动备份
+                const backup = {
+                    records: records,
+                    customExpenses: customExpenses,
+                    dailyWage: dailyWage,
+                    timestamp: new Date().toISOString()
+                };
+                localStorage.setItem('dataBackup', JSON.stringify(backup));
+                
+                return true;
+            } catch (e) {
+                console.error('数据保存失败:', e);
+                showFeedback('数据保存失败，请检查存储空间');
+                return false;
             }
-            closeMenu();
         }
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
+            // 初始化数据
+            initializeData();
+            
             // 注册Service Worker
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('./sw.js')
@@ -946,14 +926,10 @@
                         // 检查是否已安装
                         if (window.matchMedia('(display-mode: standalone)').matches) {
                             isAppInstalled = true;
-                            menuInstallBtn.style.display = 'none';
                         }
                     })
                     .catch(err => console.error('Service Worker 注册失败:', err));
             }
-            
-            // 恢复备份数据
-            restoreBackup();
             
             // 生成日历和统计数据
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
@@ -997,25 +973,24 @@
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
             
-            // 定期备份（每小时）
-            setInterval(backupData, 3600000);
-            
-            // 窗口关闭前备份
-            window.addEventListener('beforeunload', backupData);
-            
-            // 数据变化时自动备份
-            document.getElementById('dailyWageInput').addEventListener('change', backupData);
-            
             // PWA安装事件处理
             window.addEventListener('beforeinstallprompt', (e) => {
                 // 阻止默认安装提示
                 e.preventDefault();
+                
+                // 检查浏览器是否支持PWA安装
+                if (!e.prompt) {
+                    console.log('当前浏览器不支持PWA安装');
+                    return;
+                }
+                
                 // 保存事件以便稍后触发
                 deferredPrompt = e;
                 
                 // 显示菜单中的安装按钮并添加脉冲动画
                 menuInstallBtn.style.display = 'flex';
                 menuInstallBtn.classList.add('menu-install-pulse');
+                
                 // 绑定安装事件
                 menuInstallBtn.addEventListener('click', triggerInstall);
             });
@@ -1139,10 +1114,9 @@
                     name: name,
                     amount: amount
                 });
-                saveCustomExpenses();
+                saveDataToStorage();
                 renderCustomExpenses();
                 calculateStats();
-                backupData();
                 showFeedback('已添加自定义费用');
             }
             document.getElementById('customModal').style.display = 'none';
@@ -1150,10 +1124,9 @@
 
         function deleteCustomExpense(id) {
             customExpenses = customExpenses.filter(item => item.id !== id);
-            saveCustomExpenses();
+            saveDataToStorage();
             renderCustomExpenses();
             calculateStats();
-            backupData();
             showFeedback('已删除自定义费用');
         }
 
@@ -1196,6 +1169,8 @@
                 endDate.setHours(23, 59, 59, 999);
             } catch (e) {
                 console.error('日期解析错误:', e);
+                showFeedback('日期范围无效');
+                return;
             }
 
             // 计算工作天数和生活费用
@@ -1227,14 +1202,13 @@
             if (!s) return '';
             return { full: '全', half: '半', rest: '休' }[s]; 
         }
+        
         function saveAndUpdate() {
-            localStorage.setItem('workRecords', JSON.stringify(records));
-            generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-            calculateStats();
-            backupData();
-        }
-        function saveCustomExpenses() {
-            localStorage.setItem('customExpenses', JSON.stringify(customExpenses));
+            if (saveDataToStorage()) {
+                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                calculateStats();
+                showFeedback('数据已保存');
+            }
         }
 
         function switchMode(mode) {
@@ -1255,16 +1229,20 @@
 
         function resetData() {
             if(confirm('确定要清空所有记录吗？此操作不可恢复！')) {
-                localStorage.clear();
-                records = {};
-                customExpenses = [];
-                document.getElementById('dailyWageInput').value = '350元';
-                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-                renderCustomExpenses();
-                calculateStats();
-                backupData();
-                showFeedback('已清除所有数据');
-                closeMenu();
+                try {
+                    localStorage.clear();
+                    records = {};
+                    customExpenses = [];
+                    document.getElementById('dailyWageInput').value = '350元';
+                    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                    renderCustomExpenses();
+                    calculateStats();
+                    showFeedback('已清除所有数据');
+                    closeMenu();
+                } catch (e) {
+                    console.error('重置数据失败:', e);
+                    showFeedback('重置失败，请重试');
+                }
             }
         }
 
@@ -1272,6 +1250,49 @@
             if (event.target.classList.contains('modal-overlay')) {
                 event.target.style.display = 'none';
             }
+        }
+
+        // 菜单功能
+        function openMenu() {
+            menuPanel.classList.add('active');
+            menuOverlay.style.display = 'block';
+            setTimeout(() => {
+                menuOverlay.style.opacity = '1';
+            }, 10);
+        }
+
+        function closeMenu() {
+            menuPanel.classList.remove('active');
+            menuOverlay.style.opacity = '0';
+            setTimeout(() => {
+                menuOverlay.style.display = 'none';
+            }, 300);
+        }
+
+        // 触发PWA安装
+        function triggerInstall() {
+            if (deferredPrompt) {
+                // 显示安装提示
+                deferredPrompt.prompt();
+                // 等待用户响应
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('用户接受了安装提示');
+                        showFeedback('应用安装中...');
+                        menuInstallBtn.style.display = 'none';
+                        menuInstallBtn.classList.remove('menu-install-pulse');
+                        isAppInstalled = true;
+                    } else {
+                        console.log('用户拒绝了安装提示');
+                        showFeedback('安装已取消');
+                    }
+                    // 清除保存的事件
+                    deferredPrompt = null;
+                });
+            } else {
+                showFeedback('应用已安装或当前浏览器不支持');
+            }
+            closeMenu();
         }
 
         // 状态选择功能
@@ -1307,12 +1328,12 @@
                         status: status,
                         expense: expense
                     };
-                    showFeedback('数据已保存');
+                    saveAndUpdate();
                 } else {
                     delete records[selectedDateKey];
                     showFeedback('已清除状态');
+                    saveAndUpdate();
                 }
-                saveAndUpdate();
             }
             document.getElementById('editModal').style.display = 'none';
         }
@@ -1367,7 +1388,7 @@
         
         // 关于应用
         function showAbout() {
-            alert('一键工达 v1.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持数据备份和恢复\n5. 支持离线使用');
+            alert('一键工达 v2.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息），从记录到工资单，只需一键的距离\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持离线使用');
             closeMenu();
         }
     </script>
