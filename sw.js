@@ -1,5 +1,5 @@
 // sw.js - Service Worker 文件
-const CACHE_NAME = 'salary-calculator-v3.1';
+const CACHE_NAME = 'salary-calculator-v3.3';
 const urlsToCache = [
   './',
   './index.html',
@@ -35,11 +35,8 @@ self.addEventListener('activate', event => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // 立即接管所有客户端
   );
-  
-  // 立即接管所有客户端
-  self.clients.claim();
 });
 
 // 拦截请求并返回缓存内容
@@ -52,26 +49,14 @@ self.addEventListener('fetch', event => {
           // 优先返回缓存的index.html
           return response || fetch(event.request);
         })
-        .catch(() => {
-          // 即使缓存失败也返回index.html
-          return caches.match('./index.html');
-        })
     );
   } else {
-    // 处理其他请求
+    // 处理其他请求（如图片、图标等）
     event.respondWith(
       caches.match(event.request)
         .then(response => {
           // 返回缓存内容或网络请求
           return response || fetch(event.request);
-        })
-        .catch(() => {
-          // 对于非导航请求，返回错误响应
-          return new Response('离线不可用', {
-            status: 503,
-            statusText: 'Service Unavailable',
-            headers: new Headers({'Content-Type': 'text/plain'})
-          });
         })
     );
   }
