@@ -1018,13 +1018,25 @@
                     }
                 }
             });
+
+            // 全局点击事件处理模态框关闭
+            document.addEventListener('click', function(event) {
+                const modalOverlays = document.querySelectorAll('.modal-overlay');
+                modalOverlays.forEach(modal => {
+                    if (event.target === modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
         });
         
         // 更新网络状态显示
         function updateOnlineStatus() {
             const offlineAlert = document.getElementById('offlineAlert');
+            
             if (!navigator.onLine) {
                 offlineAlert.style.display = 'block';
+                showFeedback('离线模式：所有操作将保存在本地');
             } else {
                 offlineAlert.style.display = 'none';
             }
@@ -1397,7 +1409,7 @@
         
         // 关于应用
         function showAbout() {
-            alert('一键工达 v3.10\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 支持离线使用');
+            alert('一键工达 v3.2.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 完全支持离线使用');
             closeMenu();
         }
     </script>
