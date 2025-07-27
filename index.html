@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#FF9800">
     <title>一键工达</title>
-    <link rel="manifest" href="./manifest.json">
-    <link rel="apple-touch-icon" href="./icon-192x192.png">
     <style>
         :root {
             --primary-color: #2196F3;    /* 深蓝 */
-            --half-color: #FFC107;       /* 深黄 */
+            --half-color: #FF9800;       /* 深黄 */
             --rest-color: #757575;       /* 深灰 */
             --total-color: #ff4444;
             --default-status: #e0e0e0;   /* 统一未选中时的浅灰色 */
             --install-btn-color: #4CAF50;
             --feedback-scale: 0.95;
-            --header-gradient: linear-gradient(135deg, #FF9800, #FF5722);
         }
 
         * {
@@ -35,6 +31,7 @@
             background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
                          url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f2f5"/><path d="M0 50 L100 50 M50 0 L50 100" stroke="%23e0e0e0" stroke-width="0.5"/></svg>');
             background-size: 30px 30px;
+            line-height: 1.3; /* 整体行距缩小 */
         }
 
         .container {
@@ -48,39 +45,37 @@
             align-items: center;
             justify-content: space-between;
             margin-bottom: 15px;
-            background: var(--header-gradient);
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             padding: 0 10px;
             position: relative;
             overflow: hidden;
+            height: 49px; /* 调小高度 - 减小30% */
+            background: none; /* 去掉背景 */
         }
 
         .header-content {
             flex: 1;
-            padding: 12px 0;
+            padding: 8px 0; /* 调小内边距 */
             text-align: center;
         }
 
         .main-title {
-            color: white;
-            font-size: 24px;
+            color: var(--primary-color); /* 字体蓝色 */
+            font-size: 22px; /* 稍小字号 */
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
             letter-spacing: 1px;
         }
 
         .sub-title {
-            color: rgba(255,255,255,0.85);
-            font-size: 14px;
-            margin-top: 4px;
-            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+            color: var(--primary-color); /* 字体蓝色 */
+            font-size: 13px;
+            margin-top: 2px; /* 减小间距 */
             font-weight: 500;
         }
 
         .menu-btn {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -88,18 +83,17 @@
             cursor: pointer;
             padding: 8px;
             margin-left: 8px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
+            background: transparent !important; /* 去掉背景 */
             transition: all 0.3s ease;
-            position: relative; /* 确保点击区域 */
-            z-index: 10; /* 提高层级确保可点击 */
+            position: relative;
+            z-index: 10;
         }
 
         .menu-btn span {
             display: block;
-            width: 22px;
+            width: 20px;
             height: 2px;
-            background: white;
+            background: var(--primary-color);
             margin: 2px 0;
             border-radius: 1px;
             transition: all 0.3s ease;
@@ -110,23 +104,24 @@
         }
 
         .mode-switch {
-            display: flex;
-            gap: 5px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
             margin-bottom: 8px;
         }
 
         .mode-btn {
-            flex: 1;
-            padding: 10px;
+            padding: 8px;
             border: none;
             border-radius: 8px;
             background: #e0e0e0;
             color: #666;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.2s ease;
             font-weight: 500;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #ddd; /* 添加边框 */
         }
 
         .mode-btn.active {
@@ -162,6 +157,7 @@
             font-weight: bold;
             font-size: 13px;
             color: #555;
+            border: 1px solid #ddd; /* 添加与按钮一致的边框 */
         }
 
         .weekday {
@@ -177,7 +173,11 @@
             padding: 5px;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            touch-action: pan-y; /* 允许垂直滑动 */
+            touch-action: pan-y;
+            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            z-index: 1;
+            border: 1px solid #ddd; /* 添加与按钮一致的边框 */
         }
 
         .day-box {
@@ -257,8 +257,10 @@
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
+            z-index: 2001; /* 提高z-index确保在菜单上方 */
             animation: fadeIn 0.3s ease;
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
         @keyframes fadeIn {
@@ -268,11 +270,12 @@
 
         .edit-modal {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 280px;
+            padding: 12px;
+            border-radius: 8px;
+            width: 260px;
             animation: slideUp 0.4s ease;
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            font-size: 14px;
         }
 
         @keyframes slideUp {
@@ -281,18 +284,19 @@
         }
 
         .status-options {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .status-option {
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 8px;
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 6px;
             cursor: pointer;
             text-align: center;
             transition: all 0.2s;
             background: var(--default-status) !important;
             color: #666;
+            font-size: 14px;
         }
 
         .status-option:active {
@@ -316,18 +320,26 @@
         }
         .stats-panel {
             background: white;
-            padding: 15px;
+            padding: 12px;
             margin-top: 10px;
             border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-size: 14px;
+            border-top: 1px solid #eee; /* 添加顶部边框 */
         }
 
         .stat-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 4px 0; /* 减小内边距 */
             border-bottom: 1px solid #eee;
+            height: 36px; /* 固定高度 */
+        }
+
+        /* 第一个条目添加顶部边框 */
+        .stat-item:first-child {
+            border-top: 1px solid #eee;
         }
 
         .stat-value {
@@ -337,21 +349,28 @@
             min-width: 100px;
         }
 
+        /* 日工单价输入框左对齐 */
         #dailyWageInput {
             width: 80px;
             padding: 5px 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            text-align: left;
+            text-align: left; /* 左对齐 */
             -moz-appearance: textfield;
             transition: border-color 0.2s;
             font-weight: bold;
             color: #2196F3;
+            font-size: 14px;
+            background: transparent;
+            border: none;
+            outline: none;
+            pointer-events: none; /* 默认不可编辑 */
         }
 
         #dailyWageInput:focus {
-            border-color: var(--primary-color);
-            outline: none;
+            border: 1px solid var(--primary-color);
+            background: white;
+            pointer-events: auto; /* 点击时可编辑 */
             box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
         }
 
@@ -382,17 +401,18 @@
             transform: scale(var(--feedback-scale));
         }
 
-        #expenseInput {
+        #expenseInput, #locationInput {
             width: 100%;
-            padding: 8px;
-            margin-top: 10px;
+            padding: 7px;
+            margin-top: 6px;
             box-sizing: border-box;
             border: 1px solid #ddd;
             border-radius: 4px;
             transition: border-color 0.2s;
+            font-size: 14px;
         }
 
-        #expenseInput:focus {
+        #expenseInput:focus, #locationInput:focus {
             border-color: var(--primary-color);
             outline: none;
             box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
@@ -402,17 +422,28 @@
             display: flex;
             gap: 5px;
             align-items: center;
+            justify-content: flex-end; /* 按钮靠右 */
         }
 
         .add-custom-btn {
-            background: #4CAF50;
-            color: white;
+            background: transparent;
+            color: #2196F3;
             border: none;
             border-radius: 5px;
-            padding: 5px 10px;
+            padding: 0;
             cursor: pointer;
             transition: 0.3s;
-            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+        }
+
+        .add-custom-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: #2196F3;
         }
 
         .add-custom-btn:active {
@@ -423,8 +454,10 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 6px 0;
             border-bottom: 1px solid #eee;
+            font-size: 14px;
+            height: 36px; /* 固定高度 */
         }
 
         .custom-expense-item span:nth-child(2) {
@@ -437,11 +470,18 @@
         .delete-expense-btn {
             color: #ff4444;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
             padding: 2px 5px;
             border-radius: 3px;
-            background: #fff0f0;
             transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            font-weight: bold;
+            font-size: 18px; /* 增大字体大小 */
+            line-height: 1; /* 确保垂直居中 */
         }
 
         .delete-expense-btn:active {
@@ -456,15 +496,16 @@
 
         .edit-modal input {
             width: 100%;
-            padding: 8px;
+            padding: 7px;
             margin: 5px 0;
             border: 1px solid #ddd;
             border-radius: 4px;
+            font-size: 14px;
         }
 
         .edit-modal button {
             width: 100%;
-            padding: 10px;
+            padding: 9px;
             background: #4CAF50;
             color: white;
             border: none;
@@ -472,19 +513,20 @@
             margin-top: 10px;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 14px;
         }
 
         .edit-modal button:active {
             transform: scale(var(--feedback-scale));
         }
-        
+
         .month-navigation {
             display: flex;
             align-items: center;
             gap: 8px;
             justify-content: center;
         }
-        
+
         .nav-arrow {
             cursor: pointer;
             font-size: 18px;
@@ -493,27 +535,25 @@
             padding: 4px;
             user-select: none;
             transition: all 0.2s;
-            background: rgba(33, 150, 243, 0.1);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
+            background: transparent;
+            border-radius: 0;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        
+
         .nav-arrow:active {
             transform: scale(var(--feedback-scale));
-            background: rgba(33, 150, 243, 0.2);
+            color: #0d8aee;
         }
-        
+
         #currentWorkMonth {
             font-weight: bold;
             color: #333;
             min-width: 120px;
             text-align: center;
         }
-        
+
         /* 离线提示 */
         #offlineAlert {
             display: none;
@@ -550,25 +590,14 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* 安装提示动画 */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .pulse {
-            animation: pulse 1.5s infinite;
-        }
-        
-        /* 菜单面板样式 - 修改为白色背景 */
+        /* 菜单面板样式 */
         .menu-panel {
             position: fixed;
             top: 0;
             right: -250px;
             width: 250px;
             height: 100%;
-            background: white; /* 改为白色背景 */
+            background: white;
             z-index: 2000;
             box-shadow: -2px 0 10px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
@@ -577,30 +606,30 @@
             flex-direction: column;
             overflow-y: auto;
         }
-        
+
         .menu-panel.active {
             transform: translateX(-200px);
         }
-        
+
         .menu-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 1px solid #eee; /* 浅灰色边框 */
+            border-bottom: 1px solid #eee;
         }
-        
+
         .menu-title {
             font-size: 18px;
             font-weight: bold;
-            color: #333; /* 深灰色文字 */
+            color: #333;
         }
-        
+
         .close-menu-btn {
             font-size: 24px;
             cursor: pointer;
-            color: #333; /* 深灰色文字 */
+            color: #333;
             transition: all 0.2s;
             width: 30px;
             height: 30px;
@@ -610,12 +639,12 @@
             border-radius: 50%;
             background: #f5f5f5;
         }
-        
+
         .close-menu-btn:active {
             transform: scale(0.9);
             background: #e0e0e0;
         }
-        
+
         .menu-item {
             padding: 12px 15px;
             border-bottom: 1px solid #eee;
@@ -624,22 +653,23 @@
             align-items: center;
             gap: 10px;
             transition: all 0.2s;
-            color: #333; /* 深灰色文字 */
+            color: #333;
             border-radius: 6px;
             margin: 5px 0;
+            font-size: 14px;
         }
-        
+
         .menu-item:active {
             transform: scale(var(--feedback-scale));
             background: #f5f5f5;
         }
-        
+
         .menu-item svg {
             width: 20px;
             height: 20px;
-            fill: #333; /* 深灰色图标 */
+            fill: #333;
         }
-        
+
         .menu-overlay {
             position: fixed;
             top: 0;
@@ -651,35 +681,303 @@
             z-index: 1999;
         }
         
-        /* 菜单安装按钮动画 */
-        .menu-install-pulse {
-            animation: pulse 1.5s infinite;
+        /* 列表模式样式 - 修改后 */
+        .list-container {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-top: 10px;
+            /* 取消最大高度和滚动 */
+            border: 1px solid #e0e0e0;
             position: relative;
         }
         
-        .menu-install-pulse::after {
-            content: "";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 8px;
-            height: 8px;
-            background: #4CAF50;
-            border-radius: 50%;
-            animation: blink 1.5s infinite;
+        .list-container.active {
+            display: block;
         }
         
-        @keyframes blink {
-            0% { opacity: 0.8; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.1); }
-            100% { opacity: 0.8; transform: scale(0.8); }
+        .list-header {
+            display: grid;
+            grid-template-columns: 0.8fr 0.6fr 2fr 0.8fr 0.8fr; /* 日期框调窄，地点框加宽 */
+            background: #f5f7fa;
+            font-weight: bold;
+            padding: 8px 10px;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .list-item {
+            display: grid;
+            grid-template-columns: 0.8fr 0.6fr 2fr 0.8fr 0.8fr; /* 日期框调窄，地点框加宽 */
+            padding: 6px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            line-height: 1.3;
+            text-align: center;
+        }
+        
+        .list-item:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .list-item:active {
+            background-color: #e3f2fd;
+        }
+        
+        /* 修改状态文本样式 */
+        .status-text {
+            display: block;
+            font-size: 12px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .status-text-full {
+            color: #2196F3; /* 深蓝色 */
+        }
+        
+        .status-text-half {
+            color: #FF9800; /* 橙色 */
+        }
+        
+        .status-text-rest {
+            color: #757575; /* 深灰色 */
+        }
+        
+        .expense-amount {
+            color: #ff4444;
+            font-weight: 500;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        .location-info {
+            font-size: 12px;
+            color: #000; /* 黑色字体 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: center;
+        }
+        
+        .day-count {
+            font-size: 12px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .empty-list {
+            text-align: center;
+            padding: 20px;
+            color: #888;
+            font-style: italic;
+        }
+        
+        /* 自定义确认框 */
+        .confirm-modal {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 280px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .confirm-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .confirm-cancel {
+            background: #e0e0e0;
+        }
+        
+        .confirm-ok {
+            background: #ff4444;
+            color: white;
+        }
+        
+        /* 关于应用模态框 */
+        .about-modal {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            max-width: 90%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            text-align: left;
+        }
+        
+        .about-modal h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2196F3;
+        }
+        
+        .about-modal p {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+        
+        .about-modal ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .about-modal li {
+            margin-bottom: 8px;
+        }
+        
+        .about-modal .version {
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            margin-top: 10px;
+        }
+        
+        /* 修改日工单价显示位置 */
+        .wage-display {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+        
+        .wage-amount {
+            color: #2196F3;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            flex-grow: 1;
+            text-align: left;
+            padding-left: 0; /* 左移金额位置 */
+            background: none !important; /* 移除背景色 */
+        }
+        
+        .wage-edit-input {
+            width: 80px;
+            padding: 2px 5px;
+            border: 1px solid #2196F3;
+            border-radius: 3px;
+            font-size: 14px;
+            background: transparent !important; /* 背景透明 */
+            outline: none;
+            text-align: left;
+            margin-left: -5px; /* 进一步左移输入框 */
+        }
+        
+        /* 调整加号按钮位置 */
+        .wage-add-btn {
+            margin-left: auto; /* 将按钮推到最右边 */
+        }
+        
+        /* 展开更多按钮 */
+        .expand-more-btn {
+            width: 100%;
+            padding: 8px;
+            background: #f0f2f5;
+            color: #2196F3;
+            border: none;
+            border-radius: 0 0 8px 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .expand-more-btn:active {
+            transform: scale(var(--feedback-scale));
+            background: #e0e0e0;
+        }
+        
+        /* 操作说明模态框 */
+        .instructions-modal {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            max-width: 90%;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            text-align: left;
+            max-height: 80vh; /* 添加最大高度 */
+            overflow-y: auto; /* 添加垂直滚动 */
+        }
+        
+        .instructions-modal h2 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #2196F3;
+            font-size: 18px;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding-bottom: 10px;
+            z-index: 10;
+        }
+        
+        .instructions-modal h3 {
+            color: #2196F3;
+            font-size: 15px;
+            margin: 15px 0 8px;
+        }
+        
+        .instructions-modal ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions-modal li {
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .instructions-modal .tip {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+            border-left: 3px solid #2196F3;
+        }
+        
+        /* 确认按钮固定在底部 */
+        .instructions-modal .confirm-buttons {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding-top: 15px;
+            z-index: 10;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div id="offlineAlert">当前处于离线状态，数据将保存在本地</div>
-        
+
         <div class="header-container">
             <div class="header-content">
                 <div class="main-title">一键工达</div>
@@ -694,7 +992,8 @@
 
         <div class="mode-switch">
             <button class="mode-btn active" onclick="switchMode('month')">按月计算</button>
-            <button class="mode-btn" onclick="switchMode('custom')">自定义日期计算</button>
+            <button class="mode-btn" onclick="switchMode('custom')">自定义日期</button>
+            <button class="mode-btn" id="viewToggleBtn" onclick="toggleViewMode()">列表模式</button>
         </div>
 
         <div class="date-controls active" id="monthControl">
@@ -705,9 +1004,9 @@
             <input type="date" id="startDate">
             <input type="date" id="endDate">
         </div>
-        
+
         <!-- 日历容器 -->
-        <div class="calendar-container">
+        <div class="calendar-container" id="calendarContainer">
             <div class="weekdays">
                 <div class="weekday">日</div>
                 <div class="weekday">一</div>
@@ -717,8 +1016,23 @@
                 <div class="weekday">五</div>
                 <div class="weekday">六</div>
             </div>
-            
+
             <div class="calendar" id="calendar"></div>
+        </div>
+        
+        <!-- 列表模式容器 -->
+        <div class="list-container" id="listContainer">
+            <div class="list-header">
+                <div>日期</div>
+                <div>工作</div>
+                <div>地点</div>
+                <div>生活费</div>
+                <div>天数</div>
+            </div>
+            <div id="listContent"></div>
+            <div id="expandMoreBtnContainer" style="display: none;">
+                <button class="expand-more-btn" onclick="expandMoreItems()">展开更多</button>
+            </div>
         </div>
 
         <!-- 自定义费用模态框 -->
@@ -734,9 +1048,13 @@
             <div class="stat-item">
                 <span>日工单价：</span>
                 <div class="stat-value">
-                    <div class="wage-input-group">
-                        <input type="text" id="dailyWageInput" value="350元">
-                        <button class="add-custom-btn" onclick="showCustomModal()">+</button>
+                    <div class="wage-display">
+                        <span id="dailyWageDisplay" class="wage-amount" onclick="editDailyWage()">350元</span>
+                        <button class="add-custom-btn wage-add-btn" onclick="showCustomModal()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#2196F3">
+                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -764,7 +1082,7 @@
                     <span id="totalExpense">0.00</span> 元
                 </div>
             </div>
-            
+
             <!-- 自定义费用容器 -->
             <div id="customExpensesContainer"></div>
 
@@ -784,15 +1102,90 @@
                     <div class="status-option status-rest" onclick="selectStatus('rest')">休息</div>
                 </div>
                 <div class="expense-input">
-                    <input type="number" id="expenseInput" placeholder="输入当天生活费用">
+                    <input type="text" id="locationInput" placeholder="输入工作地点" inputmode="text" readonly onfocus="this.removeAttribute('readonly')">
+                    <input type="number" id="expenseInput" placeholder="输入当天生活费用" inputmode="decimal" readonly onfocus="this.removeAttribute('readonly')">
                     <button onclick="saveData()">保存</button>
                 </div>
             </div>
         </div>
         
+        <!-- 自定义确认框 -->
+        <div class="modal-overlay" id="confirmModal">
+            <div class="confirm-modal">
+                <div id="confirmMessage">确定要清空所有记录吗？此操作不可恢复！</div>
+                <div class="confirm-buttons">
+                    <button class="confirm-cancel" onclick="hideConfirmModal()">取消</button>
+                    <button class="confirm-ok" onclick="confirmResetData()">确定</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 关于应用模态框 -->
+        <div class="modal-overlay" id="aboutModal">
+            <div class="about-modal">
+                <h2>一键工达</h2>
+                <p><strong>版本：</strong> v4.0</p>
+                <p><strong>功能说明：</strong></p>
+                <ul>
+                    <li>记录每日工作状态（全天、半天、休息）</li>
+                    <li>记录工作地点和生活费用</li>
+                    <li>按月、自定义日期或列表模式计算工资</li>
+                    <li>完全支持离线使用</li>
+                    <li>数据自动保存在本地</li>
+                </ul>
+                <div class="confirm-buttons">
+                    <button class="confirm-ok" onclick="hideAboutModal()">确定</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 操作说明模态框 -->
+        <div class="modal-overlay" id="instructionsModal">
+            <div class="instructions-modal">
+                <h2>操作说明</h2>
+                
+                <h3>日历操作</h3>
+                <ul>
+                    <li>点击日历日期选择工作状态：全天、半天或休息</li>
+                    <li>左右滑动日历可切换月份</li>
+                    <li>今日日期以蓝色高亮显示</li>
+                </ul>
+                
+                <h3>记录信息</h3>
+                <ul>
+                    <li>设置工作状态后，可输入工作地点和当天生活费</li>
+                    <li>全天：工作满一天，计1天工资</li>
+                    <li>半天：工作半天，计0.5天工资</li>
+                    <li>休息：不工作，不计工资</li>
+                </ul>
+                
+                <h3>费用管理</h3>
+                <ul>
+                    <li>点击日工单价可修改每日工资标准</li>
+                    <li>点击"+"按钮可添加自定义费用（如支取、借款等）</li>
+                    <li>自定义费用支持正负值（收入/支出）</li>
+                </ul>
+                
+                <h3>视图模式</h3>
+                <ul>
+                    <li>日历模式：直观查看当月工作状态</li>
+                    <li>列表模式：详细查看每日记录数据</li>
+                    <li>在自定义日期模式下，支持展开更多记录</li>
+                </ul>
+                
+                <div class="tip">
+                    <strong>提示：</strong> 所有数据自动保存在本地浏览器中，无需网络连接即可使用。清除浏览器缓存会删除所有数据。
+                </div>
+                
+                <div class="confirm-buttons">
+                    <button class="confirm-ok" onclick="hideInstructionsModal()">确定</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 操作反馈提示 -->
         <div class="feedback-toast" id="feedbackToast"></div>
-        
+
         <!-- 菜单面板 -->
         <div class="menu-overlay" id="menuOverlay"></div>
         <div class="menu-panel" id="menuPanel">
@@ -801,20 +1194,20 @@
                 <div class="close-menu-btn" onclick="closeMenu()">×</div>
             </div>
             
-            <div class="menu-item menu-install-pulse" id="menuInstallBtn" style="display: none;">
+            <div class="menu-item" onclick="showInstructions()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>
+                    <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
                 </svg>
-                <span>安装应用到桌面</span>
+                <span>操作说明</span>
             </div>
-            
-            <div class="menu-item" onclick="resetData()">
+
+            <div class="menu-item" onclick="showResetConfirm()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
                 </svg>
                 <span>清除所有数据</span>
             </div>
-            
+
             <div class="menu-item" onclick="showAbout()">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"/>
@@ -825,23 +1218,26 @@
     </div>
 
     <script>
-        // PWA安装相关变量
-        let deferredPrompt;
-        let isAppInstalled = false;
-        
         // 应用数据存储和逻辑
         let records = {};
         let customExpenses = [];
         let currentDate = new Date();
         let selectedDateKey = null;
         let touchStartX = 0;
+        let currentViewMode = 'calendar'; // 当前视图模式：calendar 或 list
+        let enableTransition = false; // 是否启用日历切换过渡动画
         
+        // 列表分页变量
+        let listItemsToShow = 30; // 默认显示30条
+        let listItemsPerPage = 20; // 每次展开20条
+        let allListItems = []; // 存储所有列表项数据
+
         // DOM元素
         const menuBtn = document.getElementById('menuBtn');
         const menuPanel = document.getElementById('menuPanel');
         const menuOverlay = document.getElementById('menuOverlay');
         const feedbackToast = document.getElementById('feedbackToast');
-        const menuInstallBtn = document.getElementById('menuInstallBtn');
+        const viewToggleBtn = document.getElementById('viewToggleBtn');
 
         // 显示操作反馈
         function showFeedback(message) {
@@ -858,20 +1254,28 @@
                 // 从localStorage加载数据
                 const storedRecords = localStorage.getItem('workRecords');
                 const storedExpenses = localStorage.getItem('customExpenses');
-                
+
                 records = storedRecords ? JSON.parse(storedRecords) : {};
                 customExpenses = storedExpenses ? JSON.parse(storedExpenses) : [];
-                
+
                 // 设置默认日工单价
-                const dailyWage = localStorage.getItem('dailyWage');
-                document.getElementById('dailyWageInput').value = dailyWage || '350元';
-                
+                const dailyWage = localStorage.getItem('dailyWage') || '350';
+                document.getElementById('dailyWageDisplay').textContent = dailyWage + '元';
+
                 // 检查数据完整性
                 if (!records || typeof records !== 'object') {
                     records = {};
                 }
                 if (!Array.isArray(customExpenses)) {
                     customExpenses = [];
+                }
+                
+                // 加载自定义日期范围
+                const savedRange = localStorage.getItem('customDateRange');
+                if (savedRange) {
+                    const { startDate, endDate } = JSON.parse(savedRange);
+                    document.getElementById('startDate').value = startDate;
+                    document.getElementById('endDate').value = endDate;
                 }
             } catch (e) {
                 console.error('数据初始化失败:', e);
@@ -880,18 +1284,23 @@
             }
         }
 
-        // 保存数据到本地存储
+        // 保存数据到本地存储（增强版）
         function saveDataToStorage() {
             try {
                 // 保存记录
                 localStorage.setItem('workRecords', JSON.stringify(records));
-                
+
                 // 保存自定义费用
                 localStorage.setItem('customExpenses', JSON.stringify(customExpenses));
-                
+
                 // 保存日工单价
-                const dailyWage = document.getElementById('dailyWageInput').value;
+                const dailyWage = document.getElementById('dailyWageDisplay').textContent.replace('元', '');
                 localStorage.setItem('dailyWage', dailyWage);
+
+                // 尝试使用IndexedDB作为备份存储
+                if ('indexedDB' in window) {
+                    saveToIndexedDB();
+                }
                 
                 return true;
             } catch (e) {
@@ -900,47 +1309,77 @@
                 return false;
             }
         }
+        
+        // 使用IndexedDB作为备份存储
+        function saveToIndexedDB() {
+            if (!window.indexedDB) return;
+            
+            const request = indexedDB.open("WorkRecordDB", 1);
+            
+            request.onerror = function(event) {
+                console.log("IndexedDB打开失败: ", event.target.errorCode);
+            };
+            
+            request.onupgradeneeded = function(event) {
+                const db = event.target.result;
+                // 创建工作记录存储
+                if (!db.objectStoreNames.contains('workRecords')) {
+                    db.createObjectStore('workRecords', { keyPath: 'id' });
+                }
+                // 创建自定义费用存储
+                if (!db.objectStoreNames.contains('customExpenses')) {
+                    db.createObjectStore('customExpenses', { keyPath: 'id' });
+                }
+            };
+            
+            request.onsuccess = function(event) {
+                const db = event.target.result;
+                
+                // 保存工作记录
+                const tx = db.transaction(['workRecords'], 'readwrite');
+                const workStore = tx.objectStore('workRecords');
+                workStore.clear();
+                
+                Object.keys(records).forEach(dateKey => {
+                    workStore.put({
+                        id: dateKey,
+                        data: records[dateKey]
+                    });
+                });
+                
+                // 保存自定义费用
+                const expenseTx = db.transaction(['customExpenses'], 'readwrite');
+                const expenseStore = expenseTx.objectStore('customExpenses');
+                expenseStore.clear();
+                
+                customExpenses.forEach(expense => {
+                    expenseStore.put(expense);
+                });
+            };
+        }
+
+        // 保存自定义日期范围
+        function saveCustomDateRange() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            localStorage.setItem('customDateRange', JSON.stringify({ startDate, endDate }));
+        }
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             // 初始化数据
             initializeData();
-            
-            // 注册Service Worker
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => {
-                        console.log('Service Worker 已注册');
-                        
-                        // 检查是否已安装
-                        if (window.matchMedia('(display-mode: standalone)').matches) {
-                            isAppInstalled = true;
-                        }
-                        
-                        // 监听Service Worker更新
-                        reg.addEventListener('updatefound', () => {
-                            const newWorker = reg.installing;
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('新版本可用，请刷新');
-                                    showFeedback('新版本可用，请刷新页面');
-                                }
-                            });
-                        });
-                    })
-                    .catch(err => console.error('Service Worker 注册失败:', err));
-            }
-            
+
             // 生成日历和统计数据
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
             renderCustomExpenses();
             updateDateDisplay();
             calculateStats();
-            
+
             // 设置当前月份
             document.getElementById('currentMonth').value = 
                 `${currentDate.getFullYear()}-${pad(currentDate.getMonth()+1)}`;
-            
+
             // 事件监听
             document.getElementById('currentMonth').addEventListener('change', function() {
                 const [year, month] = this.value.split('-').map(Number);
@@ -948,66 +1387,48 @@
                 generateCalendar(year, month-1);
                 updateDateDisplay();
                 calculateStats();
+                
+                // 如果当前是列表模式，更新列表
+                if (currentViewMode === 'list') {
+                    renderListMode();
+                }
             });
 
             // 设置自定义日期的默认值为当月1号至最后一天
             setCustomDateRangeToCurrentMonth();
-            
+
             document.getElementById('startDate').addEventListener('change', function() {
                 updateDateDisplay();
                 calculateStats();
+                saveCustomDateRange(); // 保存自定义日期范围
+                if (currentViewMode === 'list') {
+                    renderListMode();
+                }
             });
-            
+
             document.getElementById('endDate').addEventListener('change', function() {
                 updateDateDisplay();
                 calculateStats();
+                saveCustomDateRange(); // 保存自定义日期范围
+                if (currentViewMode === 'list') {
+                    renderListMode();
+                }
             });
-            
+
             // 添加触摸事件监听器
             const calendar = document.getElementById('calendar');
             calendar.addEventListener('touchstart', handleTouchStart, false);
             calendar.addEventListener('touchend', handleTouchEnd, false);
-            
+
             // 网络状态检测
             updateOnlineStatus();
             window.addEventListener('online', updateOnlineStatus);
             window.addEventListener('offline', updateOnlineStatus);
-            
-            // PWA安装事件处理
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // 阻止默认安装提示
-                e.preventDefault();
-                
-                // 检查浏览器是否支持PWA安装
-                if (!e.prompt) {
-                    console.log('当前浏览器不支持PWA安装');
-                    return;
-                }
-                
-                // 保存事件以便稍后触发
-                deferredPrompt = e;
-                
-                // 显示菜单中的安装按钮并添加脉冲动画
-                menuInstallBtn.style.display = 'flex';
-                menuInstallBtn.classList.add('menu-install-pulse');
-                
-                // 绑定安装事件
-                menuInstallBtn.addEventListener('click', triggerInstall);
-            });
-            
-            // 应用启动事件
-            window.addEventListener('appinstalled', () => {
-                console.log('应用已安装');
-                menuInstallBtn.style.display = 'none';
-                menuInstallBtn.classList.remove('menu-install-pulse');
-                isAppInstalled = true;
-                showFeedback('应用已成功安装！');
-            });
-            
+
             // 菜单按钮事件
             menuBtn.addEventListener('click', openMenu);
             menuOverlay.addEventListener('click', closeMenu);
-            
+
             // 使用事件委托绑定日历点击事件
             document.getElementById('calendar').addEventListener('click', function(event) {
                 const dayBox = event.target.closest('.day-box');
@@ -1029,11 +1450,57 @@
                 });
             });
         });
-        
+
+        // 编辑日工单价
+        function editDailyWage() {
+            const wageDisplay = document.getElementById('dailyWageDisplay');
+            const currentWage = wageDisplay.textContent.replace('元', '');
+            
+            // 创建输入框
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = currentWage;
+            input.className = 'wage-edit-input'; // 使用新样式
+            input.style.width = '80px';
+            input.style.padding = '2px 5px';
+            input.style.border = '1px solid #2196F3';
+            input.style.borderRadius = '3px';
+            input.style.fontSize = '14px';
+            input.style.background = 'transparent'; // 背景透明
+            
+            // 替换显示文本为输入框
+            wageDisplay.textContent = '';
+            wageDisplay.appendChild(input);
+            input.focus();
+            
+            // 全选输入框内容
+            input.select();
+            
+            // 处理输入完成
+            input.addEventListener('blur', function() {
+                const newValue = this.value.trim();
+                if (newValue && !isNaN(newValue)) {
+                    wageDisplay.textContent = newValue + '元';
+                    saveDataToStorage();
+                    calculateStats();
+                    showFeedback('日工单价已更新');
+                } else {
+                    wageDisplay.textContent = currentWage + '元';
+                }
+            });
+            
+            // 按Enter键确认
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            });
+        }
+
         // 更新网络状态显示
         function updateOnlineStatus() {
             const offlineAlert = document.getElementById('offlineAlert');
-            
+
             if (!navigator.onLine) {
                 offlineAlert.style.display = 'block';
                 showFeedback('离线模式：所有操作将保存在本地');
@@ -1041,22 +1508,23 @@
                 offlineAlert.style.display = 'none';
             }
         }
-        
+
         // 设置自定义日期范围为当前月
         function setCustomDateRangeToCurrentMonth() {
             const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
             const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-            
+
             document.getElementById('startDate').valueAsDate = startOfMonth;
             document.getElementById('endDate').valueAsDate = endOfMonth;
         }
-        
+
         // 更新日期显示
         function updateDateDisplay() {
             const dateDisplay = document.getElementById('dateDisplay');
             const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 'custom';
-            
+            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+
             if (mode === 'month') {
                 const year = currentDate.getFullYear();
                 const month = currentDate.getMonth() + 1;
@@ -1067,22 +1535,42 @@
                         <span class="nav-arrow" onclick="goNextMonth()">▶</span>
                     </div>
                 `;
-            } else {
+            } else if (mode === 'custom') {
                 const startStr = document.getElementById('startDate').value;
                 const endStr = document.getElementById('endDate').value;
                 dateDisplay.textContent = `${startStr} 至 ${endStr}`;
+            } else {
+                // 列表模式下显示与日历模式相同的日期信息
+                const activeMode = document.querySelector('.mode-btn.active').getAttribute('onclick').match(/'(\w+)'/)[1];
+                if (activeMode === 'month') {
+                    const year = currentDate.getFullYear();
+                    const month = currentDate.getMonth() + 1;
+                    dateDisplay.textContent = `${year}年${pad(month)}月`;
+                } else {
+                    const startStr = document.getElementById('startDate').value;
+                    const endStr = document.getElementById('endDate').value;
+                    dateDisplay.textContent = `${startStr} 至 ${endStr}`;
+                }
             }
         }
 
-        // 生成日历
+        // 生成日历（添加平滑过渡动画）
         function generateCalendar(year, month) {
             const calendar = document.getElementById('calendar');
-            calendar.innerHTML = '';
             
+            // 如果启用了过渡效果，添加动画
+            if (enableTransition) {
+                calendar.style.transform = 'translateX(100%)';
+                calendar.style.opacity = '0';
+            }
+            
+            // 清空日历
+            calendar.innerHTML = '';
+
             const date = new Date(year, month);
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const firstDay = date.getDay();
-            
+
             // 今天日期
             const today = new Date();
             const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
@@ -1098,15 +1586,15 @@
                 const day = document.createElement('div');
                 day.className = 'day-box';
                 day.dataset.dateKey = dateKey; // 存储日期key用于事件委托
-                
+
                 // 标记今天
                 if (isCurrentMonth && d === today.getDate()) {
                     day.classList.add('today');
                 }
-                
+
                 const record = records[dateKey] || {};
                 const statusText = getStatusText(record.status);
-                
+
                 day.innerHTML = `
                     <div class="day-num">${d}</div>
                     <div class="day-status ${record.status ? 'status-' + record.status : ''}">
@@ -1115,6 +1603,15 @@
                     <div class="day-expense">${record.expense ? '¥' + record.expense : ''}</div>
                 `;
                 calendar.appendChild(day);
+            }
+            
+            // 如果启用了过渡效果，应用动画
+            if (enableTransition) {
+                setTimeout(() => {
+                    calendar.style.transition = 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.4s';
+                    calendar.style.transform = 'translateX(0)';
+                    calendar.style.opacity = '1';
+                }, 10);
             }
         }
 
@@ -1128,7 +1625,7 @@
         function addCustomExpense() {
             const name = document.getElementById('customName').value.trim();
             const amount = parseFloat(document.getElementById('customAmount').value);
-            
+
             if (name && !isNaN(amount)) {
                 customExpenses.push({
                     id: Date.now(),
@@ -1144,11 +1641,22 @@
         }
 
         function deleteCustomExpense(id) {
+            // 使用统一的确认模态框
+            document.getElementById('confirmMessage').textContent = '确定要删除这条自定义费用记录吗？';
+            document.getElementById('confirmModal').style.display = 'flex';
+            
+            // 存储当前要删除的ID
+            document.getElementById('confirmModal').dataset.deleteId = id;
+        }
+        
+        function confirmDeleteExpense() {
+            const id = parseInt(document.getElementById('confirmModal').dataset.deleteId);
             customExpenses = customExpenses.filter(item => item.id !== id);
             saveDataToStorage();
             renderCustomExpenses();
             calculateStats();
             showFeedback('已删除自定义费用');
+            hideConfirmModal();
         }
 
         function renderCustomExpenses() {
@@ -1160,7 +1668,7 @@
                         ${item.amount >= 0 ? '+' : ''}${item.amount.toFixed(2)}元
                     </span>
                     <div class="custom-expense-actions">
-                        <span class="delete-expense-btn" onclick="deleteCustomExpense(${item.id})">删除</span>
+                        <div class="delete-expense-btn" onclick="deleteCustomExpense(${item.id})">−</div>
                     </div>
                 </div>
             `).join('');
@@ -1168,14 +1676,15 @@
 
         // 计算统计
         function calculateStats() {
-            const dailyWage = parseFloat(document.getElementById('dailyWageInput').value.replace('元', '')) || 0;
+            const dailyWage = parseFloat(document.getElementById('dailyWageDisplay').textContent.replace('元', '')) || 0;
             let workDays = 0, totalExpense = 0;
             let startDate, endDate;
-
+            
             try {
                 const activeModeBtn = document.querySelector('.mode-btn.active');
-                const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 'custom';
-                
+                const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
+                             activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+
                 if (mode === 'month') {
                     const monthValue = document.getElementById('currentMonth').value;
                     const [year, month] = monthValue.split('-').map(Number);
@@ -1223,10 +1732,16 @@
             if (!s) return '';
             return { full: '全', half: '半', rest: '休' }[s]; 
         }
-        
+
         function saveAndUpdate() {
             if (saveDataToStorage()) {
                 generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                
+                // 如果当前是列表模式，刷新列表
+                if (currentViewMode === 'list') {
+                    renderListMode();
+                }
+                
                 calculateStats();
                 showFeedback('数据已保存');
             }
@@ -1238,38 +1753,218 @@
             document.getElementById('customControl').style.display = mode === 'custom' ? 'grid' : 'none';
             document.querySelector(`button[onclick="switchMode('${mode}')"]`).classList.add('active');
             
+            // 更新视图
+            if (currentViewMode === 'list') {
+                renderListMode();
+            } else {
+                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+            }
+            
             // 自定义模式时设置日期为当月1号至最后一天
             if (mode === 'custom') {
-                setCustomDateRangeToCurrentMonth();
+                // 尝试从localStorage加载自定义日期范围
+                const savedRange = localStorage.getItem('customDateRange');
+                if (savedRange) {
+                    const { startDate, endDate } = JSON.parse(savedRange);
+                    document.getElementById('startDate').value = startDate;
+                    document.getElementById('endDate').value = endDate;
+                } else {
+                    setCustomDateRangeToCurrentMonth();
+                }
             }
             
             updateDateDisplay();
             calculateStats();
-            showFeedback(`已切换到${mode === 'month' ? '按月计算' : '自定义日期计算'}模式`);
+            showFeedback(`已切换到${mode === 'month' ? '按月计算' : mode === 'custom' ? '自定义日期计算' : '列表模式'}模式`);
         }
-
-        function resetData() {
-            if(confirm('确定要清空所有记录吗？此操作不可恢复！')) {
-                try {
-                    localStorage.clear();
-                    records = {};
-                    customExpenses = [];
-                    document.getElementById('dailyWageInput').value = '350元';
-                    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-                    renderCustomExpenses();
-                    calculateStats();
-                    showFeedback('已清除所有数据');
-                    closeMenu();
-                } catch (e) {
-                    console.error('重置数据失败:', e);
-                    showFeedback('重置失败，请重试');
-                }
+        
+        // 切换视图模式（日历/列表）
+        function toggleViewMode() {
+            const calendarContainer = document.getElementById('calendarContainer');
+            const listContainer = document.getElementById('listContainer');
+            
+            if (currentViewMode === 'calendar') {
+                // 切换到列表模式
+                calendarContainer.style.display = 'none';
+                listContainer.classList.add('active');
+                renderListMode();
+                currentViewMode = 'list';
+                viewToggleBtn.textContent = '日历模式';
+            } else {
+                // 切换回日历模式
+                calendarContainer.style.display = 'block';
+                listContainer.classList.remove('active');
+                currentViewMode = 'calendar';
+                viewToggleBtn.textContent = '列表模式';
+            }
+            
+            updateDateDisplay();
+        }
+        
+        // 展开更多列表项
+        function expandMoreItems() {
+            listItemsToShow += listItemsPerPage;
+            // 获取当前模式
+            const activeModeBtn = document.querySelector('.mode-btn.active');
+            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+            renderListItems(mode);
+        }
+        
+        // 渲染列表项（分页处理）
+        function renderListItems(mode) {
+            const listContent = document.getElementById('listContent');
+            listContent.innerHTML = '';
+            
+            const itemsToRender = allListItems.slice(0, listItemsToShow);
+            
+            if (itemsToRender.length === 0) {
+                listContent.innerHTML = '<div class="empty-list">暂无记录</div>';
+                document.getElementById('expandMoreBtnContainer').style.display = 'none';
+                return;
+            }
+            
+            // 渲染列表项
+            itemsToRender.forEach(item => {
+                const listItem = document.createElement('div');
+                listItem.className = 'list-item';
+                listItem.dataset.dateKey = item.dateKey;
+                listItem.innerHTML = item.html;
+                
+                // 添加点击事件
+                listItem.addEventListener('click', () => {
+                    showEditModal(item.dateKey);
+                });
+                listContent.appendChild(listItem);
+            });
+            
+            // 显示或隐藏展开按钮
+            const expandBtnContainer = document.getElementById('expandMoreBtnContainer');
+            if (mode === 'custom' && allListItems.length > listItemsToShow) {
+                expandBtnContainer.style.display = 'block';
+            } else {
+                expandBtnContainer.style.display = 'none';
             }
         }
-
-        window.onclick = function(event) {
-            if (event.target.classList.contains('modal-overlay')) {
-                event.target.style.display = 'none';
+        
+        // 渲染列表模式（修改后）
+        function renderListMode() {
+            const activeModeBtn = document.querySelector('.mode-btn.active');
+            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+            
+            let startDate, endDate;
+            
+            try {
+                if (mode === 'month') {
+                    const monthValue = document.getElementById('currentMonth').value;
+                    const [year, month] = monthValue.split('-').map(Number);
+                    startDate = new Date(year, month - 1, 1);
+                    endDate = new Date(year, month, 0);
+                } else {
+                    const startStr = document.getElementById('startDate').value;
+                    const endStr = document.getElementById('endDate').value;
+                    startDate = new Date(startStr);
+                    endDate = new Date(endStr);
+                }
+                endDate.setHours(23, 59, 59, 999);
+            } catch (e) {
+                console.error('日期解析错误:', e);
+                showFeedback('日期范围无效');
+                return;
+            }
+            
+            // 获取范围内的日期
+            const dateKeys = [];
+            const currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                dateKeys.push(`${currentDate.getFullYear()}-${pad(currentDate.getMonth()+1)}-${pad(currentDate.getDate())}`);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            // 重置分页状态
+            listItemsToShow = mode === 'month' ? dateKeys.length : 30;
+            allListItems = [];
+            
+            // 计算累计天数
+            let cumulativeDays = 0;
+            
+            // 准备所有列表项数据
+            dateKeys.forEach(dateKey => {
+                const record = records[dateKey] || {};
+                const date = new Date(dateKey);
+                
+                // 状态文本
+                let statusText = '-'; // 默认显示 "-"
+                let statusClass = '';
+                if (record.status) {
+                    statusText = { full: '全天', half: '半天', rest: '休息' }[record.status];
+                    statusClass = `status-text-${record.status}`;
+                    
+                    // 更新累计天数（休息日不计）
+                    if (record.status === 'full') cumulativeDays += 1;
+                    else if (record.status === 'half') cumulativeDays += 0.5;
+                }
+                
+                // 格式化天数显示
+                let dayCountText = '-';
+                if (record.status === 'full' || record.status === 'half') {
+                    if (cumulativeDays % 1 === 0) {
+                        dayCountText = cumulativeDays + '天';
+                    } else {
+                        dayCountText = cumulativeDays.toFixed(1) + '天';
+                    }
+                }
+                
+                const itemHTML = `
+                    <div>${date.getMonth()+1}月${date.getDate()}日</div>
+                    <div><span class="status-text ${statusClass}">${statusText}</span></div>
+                    <div class="location-info">${record.location || '-'}</div>
+                    <div class="expense-amount">${record.expense ? '¥' + record.expense : '-'}</div>
+                    <div class="day-count">${dayCountText}</div>
+                `;
+                
+                allListItems.push({
+                    dateKey: dateKey,
+                    html: itemHTML
+                });
+            });
+            
+            // 渲染列表项
+            renderListItems(mode);
+        }
+        
+        // 自定义确认框函数
+        function showResetConfirm() {
+            document.getElementById('confirmMessage').textContent = '确定要清空所有记录吗？此操作不可恢复！';
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+        
+        function hideConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+        
+        function confirmResetData() {
+            try {
+                localStorage.clear();
+                records = {};
+                customExpenses = [];
+                document.getElementById('dailyWageDisplay').textContent = '350元';
+                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                renderCustomExpenses();
+                calculateStats();
+                
+                // 如果当前是列表模式，刷新列表
+                if (currentViewMode === 'list') {
+                    renderListMode();
+                }
+                
+                showFeedback('已清除所有数据');
+                closeMenu();
+                hideConfirmModal();
+            } catch (e) {
+                console.error('重置数据失败:', e);
+                showFeedback('重置失败，请重试');
             }
         }
 
@@ -1290,32 +1985,6 @@
             }, 300);
         }
 
-        // 触发PWA安装
-        function triggerInstall() {
-            if (deferredPrompt) {
-                // 显示安装提示
-                deferredPrompt.prompt();
-                // 等待用户响应
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('用户接受了安装提示');
-                        showFeedback('应用安装中...');
-                        menuInstallBtn.style.display = 'none';
-                        menuInstallBtn.classList.remove('menu-install-pulse');
-                        isAppInstalled = true;
-                    } else {
-                        console.log('用户拒绝了安装提示');
-                        showFeedback('安装已取消');
-                    }
-                    // 清除保存的事件
-                    deferredPrompt = null;
-                });
-            } else {
-                showFeedback('应用已安装或当前浏览器不支持');
-            }
-            closeMenu();
-        }
-
         // 状态选择功能
         function selectStatus(status) {
             document.querySelectorAll('.status-option').forEach(opt => {
@@ -1330,6 +1999,7 @@
             selectedDateKey = dateKey;
             const record = records[dateKey] || {};
             document.getElementById('expenseInput').value = record.expense || '';
+            document.getElementById('locationInput').value = record.location || '';
             document.querySelectorAll('.status-option').forEach(opt => {
                 opt.classList.remove('selected');
                 if (opt.classList.contains(`status-${record.status}`)) {
@@ -1337,17 +2007,21 @@
                 }
             });
             document.getElementById('editModal').style.display = 'flex';
+            
+            // 不再自动聚焦，避免弹出输入法
         }
 
         function saveData() {
             const status = document.querySelector('.status-option.selected')?.classList[1].split('-')[1];
             const expense = parseFloat(document.getElementById('expenseInput').value) || 0;
+            const location = document.getElementById('locationInput').value.trim();
 
             if (selectedDateKey) {
                 if (status) {
                     records[selectedDateKey] = {
                         status: status,
-                        expense: expense
+                        expense: expense,
+                        location: location
                     };
                     saveAndUpdate();
                 } else {
@@ -1358,9 +2032,10 @@
             }
             document.getElementById('editModal').style.display = 'none';
         }
-        
-        // 月份导航功能
+
+        // 月份导航功能（添加平滑过渡）
         function goPrevMonth() {
+            enableTransition = true;
             currentDate.setMonth(currentDate.getMonth() - 1);
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -1368,9 +2043,15 @@
             document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
             updateDateDisplay();
             calculateStats();
+            
+            // 如果当前是列表模式，更新列表
+            if (currentViewMode === 'list') {
+                renderListMode();
+            }
         }
-        
+
         function goNextMonth() {
+            enableTransition = true;
             currentDate.setMonth(currentDate.getMonth() + 1);
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -1378,19 +2059,24 @@
             document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
             updateDateDisplay();
             calculateStats();
+            
+            // 如果当前是列表模式，更新列表
+            if (currentViewMode === 'list') {
+                renderListMode();
+            }
         }
-        
-        // 触摸事件处理
+
+        // 触摸事件处理（添加平滑过渡）
         function handleTouchStart(event) {
             touchStartX = event.touches[0].clientX;
         }
-        
+
         function handleTouchEnd(event) {
             if (!touchStartX) return;
-            
+
             const touchEndX = event.changedTouches[0].clientX;
             const diffX = touchStartX - touchEndX;
-            
+
             // 判断滑动距离是否足够
             if (Math.abs(diffX) > 50) {
                 if (diffX > 0) {
@@ -1403,14 +2089,28 @@
                     showFeedback('已切换到上一个月');
                 }
             }
-            
+
             touchStartX = 0;
         }
-        
+
         // 关于应用
         function showAbout() {
-            alert('一键工达 v3.2.0\n\n功能说明：\n1. 记录每日工作状态（全天、半天、休息）\n2. 记录每日生活费用\n3. 按月或自定义日期计算工资\n4. 完全支持离线使用');
+            document.getElementById('aboutModal').style.display = 'flex';
             closeMenu();
+        }
+        
+        function hideAboutModal() {
+            document.getElementById('aboutModal').style.display = 'none';
+        }
+        
+        // 操作说明
+        function showInstructions() {
+            document.getElementById('instructionsModal').style.display = 'flex';
+            closeMenu();
+        }
+        
+        function hideInstructionsModal() {
+            document.getElementById('instructionsModal').style.display = 'none';
         }
     </script>
 </body>
