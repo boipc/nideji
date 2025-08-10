@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>一键工达</title>
-    <meta name="theme-color" content="#2196F3">
     <style>
         :root {
             --primary-color: #2196F3;    /* 深蓝 */
@@ -838,6 +837,13 @@
             margin-bottom: 8px;
         }
         
+        .about-modal .version {
+            text-align: center;
+            font-weight: bold;
+            color: #666;
+            margin-top: 10px;
+        }
+        
         .wage-display {
             display: flex;
             align-items: center;
@@ -1004,77 +1010,6 @@
         /* 修复输入框被键盘遮挡问题 */
         .keyboard-visible .edit-modal {
             transform: translateY(-100px);
-        }
-        
-        /* 离线安装提示 */
-        #installBtn {
-            background: var(--primary-color);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            margin-top: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            transition: all 0.2s;
-        }
-        
-        #installBtn:active {
-            transform: scale(0.95);
-        }
-        
-        #installBtn svg {
-            width: 20px;
-            height: 20px;
-            fill: white;
-        }
-        
-        #installPrompt {
-            display: none;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 1000;
-            animation: slideUp 0.5s ease;
-        }
-        
-        #installPrompt p {
-            margin-bottom: 15px;
-            font-size: 15px;
-        }
-        
-        #installPrompt .prompt-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-        
-        #installPrompt .prompt-buttons button {
-            padding: 8px 20px;
-            border-radius: 6px;
-            border: none;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        
-        #installPrompt .install-confirm {
-            background: var(--primary-color);
-            color: white;
-        }
-        
-        #installPrompt .install-cancel {
-            background: #f0f0f0;
-            color: #333;
         }
     </style>
 </head>
@@ -1340,14 +1275,6 @@
             </div>
         </div>
     </div>
-    
-    <div id="installPrompt">
-        <p>添加"一键工达"到主屏幕，获得更好的离线体验</p>
-        <div class="prompt-buttons">
-            <button class="install-confirm" onclick="installApp()">添加</button>
-            <button class="install-cancel" onclick="hideInstallPrompt()">稍后</button>
-        </div>
-    </div>
 
     <script>
         // 应用数据存储和逻辑
@@ -1359,7 +1286,6 @@
         let touchStartTime = 0;
         let currentViewMode = 'calendar';
         let enableTransition = false;
-        let deferredPrompt = null;
         
         // 列表分页变量
         let listItemsToShow = 30;
@@ -1376,7 +1302,6 @@
         const menuOverlay = document.getElementById('menuOverlay');
         const feedbackToast = document.getElementById('feedbackToast');
         const viewToggleBtn = document.getElementById('viewToggleBtn');
-        const installPrompt = document.getElementById('installPrompt');
 
         // 显示操作反馈
         function showFeedback(message) {
@@ -1385,99 +1310,6 @@
             setTimeout(() => {
                 feedbackToast.classList.remove('show');
             }, 2000);
-        }
-        
-        // 初始化Service Worker
-        function initServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                // 动态创建Service Worker内容
-                const swContent = `
-                    const CACHE_NAME = 'yijiagongda-v1';
-                    const urlsToCache = [
-                        './',
-                        'index.html',
-                        'styles.css',
-                        'app.js'
-                    ];
-
-                    self.addEventListener('install', event => {
-                        event.waitUntil(
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-                                    return cache.addAll(urlsToCache);
-                                })
-                        );
-                    });
-
-                    self.addEventListener('fetch', event => {
-                        event.respondWith(
-                            caches.match(event.request)
-                                .then(response => {
-                                    return response || fetch(event.request);
-                                })
-                        );
-                    });
-
-                    self.addEventListener('activate', event => {
-                        const cacheWhitelist = [CACHE_NAME];
-                        event.waitUntil(
-                            caches.keys().then(cacheNames => {
-                                return Promise.all(
-                                    cacheNames.map(cacheName => {
-                                        if (cacheWhitelist.indexOf(cacheName) === -1) {
-                                            return caches.delete(cacheName);
-                                        }
-                                    })
-                                );
-                            })
-                        );
-                    });
-                `;
-                
-                // 创建Blob URL
-                const blob = new Blob([swContent], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(blob);
-                
-                // 注册Service Worker
-                navigator.serviceWorker.register(swUrl)
-                    .then(registration => {
-                        console.log('Service Worker 注册成功:', registration);
-                    })
-                    .catch(error => {
-                        console.log('Service Worker 注册失败:', error);
-                    });
-            }
-        }
-        
-        // 安装应用提示
-        function initInstallPrompt() {
-            window.addEventListener('beforeinstallprompt', (e) => {
-                // 阻止默认的安装提示
-                e.preventDefault();
-                // 保存事件以便稍后触发
-                deferredPrompt = e;
-                // 显示自定义安装提示
-                setTimeout(() => {
-                    installPrompt.style.display = 'block';
-                }, 3000);
-            });
-        }
-        
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        showFeedback('应用已添加到主屏幕');
-                    }
-                    deferredPrompt = null;
-                    hideInstallPrompt();
-                });
-            }
-        }
-        
-        function hideInstallPrompt() {
-            installPrompt.style.display = 'none';
         }
 
         // 初始化数据
@@ -1619,12 +1451,6 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            // 初始化Service Worker
-            initServiceWorker();
-            
-            // 初始化安装提示
-            initInstallPrompt();
-            
             // 初始化数据
             initializeData();
 
@@ -1725,7 +1551,23 @@
             document.getElementById('customAmount').addEventListener('blur', function() {
                 document.getElementById('customModal').classList.remove('keyboard-visible');
             });
+            
+            // 注册Service Worker以实现离线功能
+            registerServiceWorker();
         });
+
+        // 注册Service Worker
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('Service Worker 注册成功:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker 注册失败:', error);
+                    });
+            }
+        }
 
         // 编辑日工单价
         function editDailyWage() {
