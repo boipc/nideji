@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>一键工达</title>
     <style>
+        /* 所有CSS样式保持不变 */
         :root {
             --primary-color: #2196F3;    /* 深蓝 */
             --half-color: #FF9800;       /* 深黄 */
@@ -2372,7 +2373,7 @@
             closeMenu();
         }
         
-        // 导入数据
+        // 导入数据 - 修复自定义费用显示问题
         function importData() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -2406,7 +2407,10 @@
                         
                         // 更新界面
                         generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                        
+                        // 关键修复：添加自定义费用渲染调用
                         renderCustomExpenses();
+                        
                         updateDateDisplay();
                         calculateStats();
                         
