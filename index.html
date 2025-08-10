@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一键工达</title>
+    <title>一键工达︎</title>
     <style>
         :root {
             --primary-color: #2196F3;    /* 深蓝 */
@@ -1196,7 +1196,6 @@
                     <li>点击日工单价可修改每日工资标准</li>
                     <li>点击"+"按钮可添加自定义费用（如支取、借款等）</li>
                     <li>自定义费用支持正负值（收入/支出）</li>
-                    <li>在自定义日期模式下，只显示选定日期范围内的费用</li>
                 </ul>
                 
                 <h3>视图模式</h3>
@@ -1346,6 +1345,10 @@
                 
                 // 初始化时保存初始状态到历史记录
                 saveToHistory();
+                
+                // 重要修复：在数据加载完成后立即计算统计数据
+                calculateStats();
+                renderCustomExpenses();
             } catch (e) {
                 console.error('数据初始化失败:', e);
                 records = {};
@@ -1454,9 +1457,7 @@
 
             // 生成日历和统计数据
             generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-            renderCustomExpenses();
             updateDateDisplay();
-            calculateStats();
 
             // 设置当前月份
             document.getElementById('currentMonth').value = 
@@ -1469,6 +1470,7 @@
                 generateCalendar(year, month-1);
                 updateDateDisplay();
                 calculateStats();
+                renderCustomExpenses();
                 
                 // 如果当前是列表模式，更新列表
                 if (currentViewMode === 'list') {
@@ -1483,6 +1485,7 @@
                 updateDateDisplay();
                 calculateStats();
                 saveCustomDateRange();
+                renderCustomExpenses();
                 if (currentViewMode === 'list') {
                     renderListMode();
                 }
@@ -1492,6 +1495,7 @@
                 updateDateDisplay();
                 calculateStats();
                 saveCustomDateRange();
+                renderCustomExpenses();
                 if (currentViewMode === 'list') {
                     renderListMode();
                 }
@@ -1727,19 +1731,16 @@
             const name = document.getElementById('customName').value.trim();
             const amount = parseFloat(document.getElementById('customAmount').value);
             
-            if (name && !isNaN(amount)) {
-                // 获取当前日期（YYYY-MM-DD）
-                const today = new Date();
-                const dateStr = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
-                // 获取当前月份（YYYY-MM）
-                const monthKey = getCurrentMonthKey();
+            // 获取当前月份（YYYY-MM格式）
+            const monthValue = document.getElementById('currentMonth').value;
+            const monthKey = monthValue || getCurrentMonthKey();
 
+            if (name && !isNaN(amount)) {
                 customExpenses.push({
                     id: Date.now(),
                     name: name,
                     amount: amount,
-                    date: dateStr,   // 具体日期
-                    monthKey: monthKey // 月份
+                    monthKey: monthKey // 添加月份标识
                 });
                 saveDataToStorage();
                 renderCustomExpenses();
@@ -1768,42 +1769,59 @@
             document.getElementById('confirmModal').dataset.deleteId = id;
         }
 
+        // 修复：根据日期范围显示自定义费用
         function renderCustomExpenses() {
             const container = document.getElementById('customExpensesContainer');
             container.innerHTML = '';
             
-            // 获取当前模式
+            // 获取当前激活的模式
             const activeModeBtn = document.querySelector('.mode-btn.active');
             const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
                          activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
-
-            let filteredExpenses = [];
-
+            
+            let expensesToShow = [];
+            
             if (mode === 'month') {
-                // 按月模式：使用当前月份键
+                // 按月模式：只显示当前月份的自定义费用
                 const currentMonthKey = getCurrentMonthKey();
-                filteredExpenses = customExpenses.filter(expense => expense.monthKey === currentMonthKey);
+                expensesToShow = customExpenses.filter(expense => expense.monthKey === currentMonthKey);
             } else {
-                // 自定义模式：使用日期范围
+                // 自定义模式：显示在自定义日期范围内的所有月份的费用
                 try {
                     const startStr = document.getElementById('startDate').value;
                     const endStr = document.getElementById('endDate').value;
-                    const startDate = new Date(startStr);
-                    const endDate = new Date(endStr);
-                    endDate.setHours(23, 59, 59, 999);
-
-                    filteredExpenses = customExpenses.filter(expense => {
-                        const expenseDate = new Date(expense.date);
-                        return expenseDate >= startDate && expenseDate <= endDate;
-                    });
+                    
+                    if (startStr && endStr) {
+                        const startDate = new Date(startStr);
+                        const endDate = new Date(endStr);
+                        endDate.setHours(23, 59, 59, 999);
+                        
+                        // 获取日期范围内的所有月份（YYYY-MM格式）
+                        const monthsInRange = [];
+                        let current = new Date(startDate);
+                        current.setDate(1); // 设置为当月第一天
+                        
+                        while (current <= endDate) {
+                            const monthKey = `${current.getFullYear()}-${pad(current.getMonth()+1)}`;
+                            monthsInRange.push(monthKey);
+                            current.setMonth(current.getMonth() + 1);
+                        }
+                        
+                        // 去重
+                        const uniqueMonths = [...new Set(monthsInRange)];
+                        
+                        // 过滤出这些月份的费用
+                        expensesToShow = customExpenses.filter(expense => 
+                            uniqueMonths.includes(expense.monthKey)
+                        );
+                    }
                 } catch (e) {
-                    console.error('日期范围无效', e);
-                    filteredExpenses = [];
+                    console.error('日期解析错误:', e);
                 }
             }
             
-            // 渲染过滤后的自定义费用
-            filteredExpenses.forEach(item => {
+            // 渲染费用项
+            expensesToShow.forEach(item => {
                 const expenseItem = document.createElement('div');
                 expenseItem.className = 'custom-expense-item';
                 expenseItem.innerHTML = `
@@ -1819,7 +1837,7 @@
             });
         }
 
-        // 计算统计
+        // 计算统计 - 修复自定义费用计算
         function calculateStats() {
             const dailyWage = parseFloat(document.getElementById('dailyWageDisplay').textContent.replace('元', '')) || 0;
             let workDays = 0, totalExpense = 0;
@@ -1831,17 +1849,18 @@
                              activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
 
                 if (mode === 'month') {
-                    const monthValue = document.getElementById('currentMonth').value;
-                    const [year, month] = monthValue.split('-').map(Number);
-                    startDate = new Date(year, month - 1, 1);
-                    endDate = new Date(year, month, 0);
+                    const year = currentDate.getFullYear();
+                    const month = currentDate.getMonth(); // 0-11
+                    startDate = new Date(year, month, 1);
+                    endDate = new Date(year, month+1, 0);
+                    endDate.setHours(23, 59, 59, 999);
                 } else {
                     const startStr = document.getElementById('startDate').value;
                     const endStr = document.getElementById('endDate').value;
                     startDate = new Date(startStr);
                     endDate = new Date(endStr);
+                    endDate.setHours(23, 59, 59, 999);
                 }
-                endDate.setHours(23, 59, 59, 999);
             } catch (e) {
                 console.error('日期解析错误:', e);
                 showFeedback('日期范围无效');
@@ -1850,7 +1869,7 @@
 
             // 计算工作天数和生活费用
             Object.entries(records).forEach(([dateKey, record]) => {
-                const currentDate = new Date(dateKey);
+                const currentDate = new Date(dateKey + 'T00:00:00');
                 if (currentDate >= startDate && currentDate <= endDate) {
                     if (record.status === 'full') workDays += 1;
                     else if (record.status === 'half') workDays += 0.5;
@@ -1858,33 +1877,41 @@
                 }
             });
 
-            // 计算自定义费用（根据当前模式）
+            // 计算自定义费用 - 修复部分
             let customTotal = 0;
+            const activeModeBtn = document.querySelector('.mode-btn.active');
+            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+            
             if (mode === 'month') {
+                // 按月模式：只计算当前月份的自定义费用
                 const currentMonthKey = getCurrentMonthKey();
                 customTotal = customExpenses
                     .filter(expense => expense.monthKey === currentMonthKey)
                     .reduce((sum, item) => sum + item.amount, 0);
             } else {
-                try {
-                    const startStr = document.getElementById('startDate').value;
-                    const endStr = document.getElementById('endDate').value;
-                    const startDate = new Date(startStr);
-                    const endDate = new Date(endStr);
-                    endDate.setHours(23, 59, 59, 999);
-
-                    customTotal = customExpenses
-                        .filter(expense => {
-                            const expenseDate = new Date(expense.date);
-                            return expenseDate >= startDate && expenseDate <= endDate;
-                        })
-                        .reduce((sum, item) => sum + item.amount, 0);
-                } catch (e) {
-                    console.error('日期范围无效', e);
-                    customTotal = 0;
-                }
-            }
+                // 自定义日期模式：计算日期范围内所有月份的自定义费用
+                const startMonth = new Date(startDate);
+                const endMonth = new Date(endDate);
+                const monthsInRange = [];
                 
+                // 获取日期范围内的所有月份
+                let current = new Date(startMonth);
+                while (current <= endMonth) {
+                    const monthKey = `${current.getFullYear()}-${pad(current.getMonth()+1)}`;
+                    monthsInRange.push(monthKey);
+                    current.setMonth(current.getMonth() + 1);
+                }
+                
+                // 去重
+                const uniqueMonths = [...new Set(monthsInRange)];
+                
+                // 计算这些月份的自定义费用
+                customTotal = customExpenses
+                    .filter(expense => uniqueMonths.includes(expense.monthKey))
+                    .reduce((sum, item) => sum + item.amount, 0);
+            }
+
             const displayDays = workDays % 1 === 0 ? workDays : workDays.toFixed(1);
             const totalSalary = workDays * dailyWage;
             const totalSum = totalSalary + totalExpense + customTotal;
@@ -1913,6 +1940,7 @@
                 }
                 
                 calculateStats();
+                renderCustomExpenses();
                 showFeedback('数据已保存');
             }
         }
@@ -1945,6 +1973,7 @@
             
             updateDateDisplay();
             calculateStats();
+            renderCustomExpenses();
             showFeedback(`已切换到${mode === 'month' ? '按月计算' : mode === 'custom' ? '自定义日期计算' : '列表模式'}模式`);
         }
         
@@ -1969,6 +1998,7 @@
             }
             
             updateDateDisplay();
+            calculateStats();
         }
         
         // 展开更多列表项
@@ -2228,6 +2258,7 @@
             document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
             updateDateDisplay();
             calculateStats();
+            renderCustomExpenses();
             
             // 如果当前是列表模式，更新列表
             if (currentViewMode === 'list') {
@@ -2244,6 +2275,7 @@
             document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
             updateDateDisplay();
             calculateStats();
+            renderCustomExpenses();
             
             // 如果当前是列表模式，更新列表
             if (currentViewMode === 'list') {
