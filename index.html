@@ -1285,7 +1285,7 @@
             <button class="mode-btn active" onclick="switchMode('month')">按月计算</button>
             <button class="mode-btn" onclick="switchMode('custom')">自定义日期</button>
             <button class="mode-btn" id="viewToggleBtn" onclick="toggleViewMode()">列表模式</button>
-            <button class="mode-btn" onclick="switchMode('stats')">收入统计</button> <!-- 修改文本为"收入统计" -->
+            <button class="mode-btn" onclick="switchMode('stats')">收入统计</button>
         </div>
 
         <div class="date-controls active" id="monthControl">
@@ -1354,7 +1354,7 @@
             </div>
             
             <div class="total-income-display">
-                <div id="incomeTitle">总收入</div> <!-- 添加ID用于动态修改 -->
+                <div id="incomeTitle">总收入</div>
                 <div class="income-amount" id="totalIncomeAmount">0.00 元</div>
                 <div class="stats-info" id="statsInfo"></div>
             </div>
@@ -1478,7 +1478,7 @@
                         <li>休息：不工作，不计工资</li>
                     </ul>
                     
-                    <h3>收入统计</h3> <!-- 修改标题 -->
+                    <h3>收入统计</h3>
                     <ul>
                         <li>按月模式：显示当前年份各月收入统计</li>
                         <li>自定义模式：显示日期范围内各月收入统计</li>
@@ -1873,12 +1873,18 @@
             
             // 注册Service Worker以实现离线功能
             registerServiceWorker();
+            
+            // 关键修复：初始化视图模式
+            enableTransition = false;
+            switchMode('month');
+            enableTransition = true;
         });
 
         // 注册Service Worker
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./sw.js')
+                // 添加版本号参数确保更新
+                navigator.serviceWorker.register('./sw.js?v=2.0')
                     .then(registration => {
                         console.log('Service Worker 注册成功:', registration);
                     })
@@ -1963,9 +1969,7 @@
         function updateDateDisplay() {
             const dateDisplay = document.getElementById('dateDisplay');
             const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
-                         activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
+            const mode = activeModeBtn.getAttribute('onclick').match(/'(\w+)'/)[1];
 
             if (mode === 'month') {
                 const year = currentDate.getFullYear();
@@ -2118,9 +2122,7 @@
             
             // 获取当前激活的模式
             const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
-                         activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
+            const mode = activeModeBtn.getAttribute('onclick').match(/'(\w+)'/)[1];
             
             let expensesToShow = [];
             
@@ -2191,9 +2193,7 @@
             
             try {
                 const activeModeBtn = document.querySelector('.mode-btn.active');
-                const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                             activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
-                             activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
+                const mode = activeModeBtn.getAttribute('onclick').match(/'(\w+)'/)[1];
 
                 if (mode === 'month') {
                     const year = currentDate.getFullYear();
@@ -2251,9 +2251,7 @@
             // 计算自定义费用 - 修复部分
             let customTotal = 0;
             const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
-                         activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
+            const mode = activeModeBtn.getAttribute('onclick').match(/'(\w+)'/)[1];
             
             if (mode === 'month') {
                 // 按月模式：只计算当前月份的自定义费用
@@ -2351,8 +2349,10 @@
             // 更新视图模式
             if (mode === 'list') {
                 currentViewMode = 'list';
+                renderListMode(); // 关键修复：确保列表模式被渲染
             } else if (mode === 'stats') {
                 currentViewMode = 'stats';
+                renderStatsChart(); // 关键修复：确保统计图表被渲染
             } else {
                 currentViewMode = 'calendar';
             }
@@ -2442,8 +2442,7 @@
             listItemsToShow += listItemsPerPage;
             // 获取当前模式
             const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+            const mode = activeModeBtn.getAttribute('onclick').match(/'(\w+)'/)[1];
             renderListItems(mode);
         }
         
@@ -2486,8 +2485,7 @@
         // 渲染列表模式（修改后）
         function renderListMode() {
             const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+            const mode = activeModeBtn.getAttribute('onclick').match(/'(\w+)'/)[1];
             
             let startDate, endDate;
             
@@ -2876,8 +2874,7 @@
             
             // 获取当前激活的模式
             const activeModeBtn = document.querySelector('.mode-btn.active');
-            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'stats';
+            const mode = activeModeBtn.getAttribute('onclick').match(/'(\w+)'/)[1];
             
             let labels = [];
             let data = [];
