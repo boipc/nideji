@@ -1,5 +1,5 @@
 // Service Worker 文件：sw.js
-const CACHE_VERSION = 'v1.0';
+const CACHE_VERSION = 'v1.1';
 const CACHE_NAME = `一键工达-${CACHE_VERSION}`;
 const urlsToCache = [
   './',
