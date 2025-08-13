@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>一键工达</title>
     <style>
-        /* 所有CSS样式保持不变 */
         :root {
-            --primary-color: #2196F3;    /* 深蓝 */
-            --half-color: #FF9800;       /* 深黄 */
-            --rest-color: #757575;       /* 深灰 */
+            --primary-color: #2196F3;
+            --half-color: #FF9800;
+            --rest-color: #757575;
             --total-color: #ff4444;
-            --default-status: #e0e0e0;   /* 统一未选中时的浅灰色 */
+            --default-status: #e0e0e0;
             --install-btn-color: #4CAF50;
             --feedback-scale: 0.95;
             --success-color: #4CAF50;
+            --chart-color-1: #2196F3;
+            --chart-color-2: #4CAF50;
+            --chart-color-3: #FF9800;
+            --chart-color-4: #9C27B0;
         }
 
         * {
@@ -105,25 +108,34 @@
             transform: scale(var(--feedback-scale));
         }
 
+        /* 模式按钮高度调整 */
         .mode-switch {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 4px;
             margin-bottom: 8px;
         }
 
         .mode-btn {
-            padding: 8px;
+            padding: 4px 3px; /* 进一步缩小按钮 */
             border: none;
             border-radius: 8px;
             background: #e0e0e0;
             color: #666;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             transition: all 0.2s ease;
             font-weight: 500;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             border: 1px solid #ddd;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-height: 28px; /* 进一步缩小高度 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
 
         .mode-btn.active {
@@ -138,13 +150,100 @@
 
         .date-controls {
             display: none;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px;
             margin-bottom: 8px;
+            width: 100%;
         }
 
         .date-controls.active {
-            display: grid;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 重新设计的日期选择器 - 高度优化 */
+        .date-picker {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1px; /* 减小内边距 */
+            max-width: 95%;
+            position: relative;
+            border: 1px solid var(--primary-color); /* 蓝色边框 */
+            margin: 0 auto; /* 确保居中 */
+            height: 26px; /* 缩小高度20% (原32px -> 26px) */
+        }
+
+        .month-picker {
+            width: 160px;
+            text-align: center;
+            font-size: 14px; /* 字体缩小 */
+            font-weight: 500;
+            color: #333;
+            padding: 0 10px; /* 调整内边距 */
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .month-picker:hover {
+            background: #f5f5f5;
+        }
+
+        .custom-range-picker {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            justify-content: center; /* 添加居中 */
+            padding: 0 5px;
+        }
+
+        .date-input {
+            flex: 1;
+            text-align: center;
+            padding: 0 5px; /* 减小内边距 */
+            font-size: 13px; /* 统一字体大小 */
+            font-weight: 500; /* 统一字体粗细 */
+            color: #333;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; /* 统一字体 */
+        }
+
+        .date-input:hover {
+            background: #f5f5f5;
+        }
+
+        .date-separator {
+            margin: 0 5px;
+            color: #666;
+            font-size: 13px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* 隐藏原生的日期选择控件 */
+        .date-controls input[type="month"],
+        .date-controls input[type="date"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+            pointer-events: none;
         }
 
         .weekdays {
@@ -275,7 +374,6 @@
             animation: slideUp 0.4s ease;
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             font-size: 14px;
-            /* 确保模态框在键盘弹出时能调整位置 */
             transition: transform 0.3s ease;
         }
 
@@ -910,7 +1008,9 @@
             box-shadow: 0 8px 25px rgba(0,0,0,0.2);
             text-align: left;
             max-height: 80vh;
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         
         .instructions-modal h2 {
@@ -921,8 +1021,15 @@
             position: sticky;
             top: 0;
             background: white;
-            padding-bottom: 10px;
+            padding: 10px 0;
             z-index: 10;
+            margin-top: -10px;
+        }
+        
+        .instructions-content {
+            overflow-y: auto;
+            padding: 0 5px;
+            flex-grow: 1;
         }
         
         .instructions-modal h3 {
@@ -957,6 +1064,8 @@
             background: white;
             padding-top: 15px;
             z-index: 10;
+            padding-bottom: 10px;
+            width: 100%;
         }
 
         .restore-btn {
@@ -1008,9 +1117,151 @@
             color: white;
         }
         
-        /* 修复输入框被键盘遮挡问题 */
-        .keyboard-visible .edit-modal {
-            transform: translateY(-100px);
+        /* 统计图表容器 */
+        .stats-container {
+            display: none;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-top: 10px;
+            position: relative;
+            min-height: 450px;
+            overflow: hidden;
+        }
+        
+        .stats-container.active {
+            display: block;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+        
+        .chart-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        
+        /* 图表按钮行距调整 */
+        .chart-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px; /* 增加底部间距 */
+        }
+        
+        .chart-btn {
+            padding: 8px 12px; /* 增加垂直内边距 */
+            background: #f0f2f5;
+            border: none;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .chart-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .chart-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .chart-offline-alert {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .chart-offline-alert.active {
+            display: block;
+        }
+        
+        .chart-offline-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #ccc;
+        }
+        
+        .total-income-display {
+            text-align: center;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #2196F3;
+            font-size: 16px;
+        }
+        
+        .income-amount {
+            font-size: 20px;
+            color: #ff4444;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        
+        .stats-info {
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            margin-bottom: 5px; /* 增加行距 */
+        }
+        
+        /* 修复列表模式显示问题 */
+        .list-content-container {
+            /* 移除高度限制和滚动条 */
+            overflow: visible;
+        }
+        
+        /* 修复统计图表底部显示问题 */
+        .stats-container {
+            padding-bottom: 20px;
+        }
+        
+        /* 修复操作说明滑动穿透问题 */
+        .instructions-modal h2,
+        .instructions-modal .confirm-buttons {
+            background: white;
+            position: sticky;
+            z-index: 20;
+        }
+        
+        .instructions-modal h2 {
+            top: 0;
+        }
+        
+        .instructions-modal .confirm-buttons {
+            bottom: 0;
+        }
+        
+        /* 修复底部空白问题 */
+        .stats-panel {
+            margin-bottom: 10px;
+        }
+        
+        .container {
+            padding-bottom: 10px;
         }
     </style>
 </head>
@@ -1034,15 +1285,26 @@
             <button class="mode-btn active" onclick="switchMode('month')">按月计算</button>
             <button class="mode-btn" onclick="switchMode('custom')">自定义日期</button>
             <button class="mode-btn" id="viewToggleBtn" onclick="toggleViewMode()">列表模式</button>
+            <button class="mode-btn" onclick="switchMode('stats')">收入统计</button> <!-- 修改文本为"收入统计" -->
         </div>
 
         <div class="date-controls active" id="monthControl">
-            <input type="month" id="currentMonth">
+            <div class="date-picker">
+                <div class="month-picker" id="monthDisplay" onclick="document.getElementById('currentMonth').click()">2025年8月</div>
+                <input type="month" id="currentMonth">
+            </div>
         </div>
 
         <div class="date-controls" id="customControl">
-            <input type="date" id="startDate">
-            <input type="date" id="endDate">
+            <div class="date-picker">
+                <div class="custom-range-picker">
+                    <div class="date-input" id="startDateDisplay" onclick="document.getElementById('startDate').click()">2025年3月21日</div>
+                    <span class="date-separator">—</span>
+                    <div class="date-input" id="endDateDisplay" onclick="document.getElementById('endDate').click()">2025年8月31日</div>
+                </div>
+                <input type="date" id="startDate">
+                <input type="date" id="endDate">
+            </div>
         </div>
 
         <div class="calendar-container" id="calendarContainer">
@@ -1067,9 +1329,34 @@
                 <div>生活费</div>
                 <div>天数</div>
             </div>
-            <div id="listContent"></div>
+            <div class="list-content-container" id="listContent"></div>
             <div id="expandMoreBtnContainer" style="display: none;">
                 <button class="expand-more-btn" onclick="expandMoreItems()">展开更多</button>
+            </div>
+        </div>
+        
+        <!-- 统计图表容器 -->
+        <div class="stats-container" id="statsContainer">
+            <div class="chart-title" id="chartTitle">月度收入统计</div>
+            <div class="chart-subtitle" id="chartSubtitle"></div>
+            <div class="chart-actions">
+                <button class="chart-btn active" onclick="changeChartType('bar')">柱状图</button>
+                <button class="chart-btn" onclick="changeChartType('line')">折线图</button>
+                <button class="chart-btn" onclick="changeChartType('pie')">饼图</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="statsChart"></canvas>
+                <div class="chart-offline-alert" id="chartOfflineAlert">
+                    <div class="chart-offline-icon">📊</div>
+                    <p>统计图表需要联网加载资源</p>
+                    <p>请连接网络后重试</p>
+                </div>
+            </div>
+            
+            <div class="total-income-display">
+                <div id="incomeTitle">总收入</div> <!-- 添加ID用于动态修改 -->
+                <div class="income-amount" id="totalIncomeAmount">0.00 元</div>
+                <div class="stats-info" id="statsInfo"></div>
             </div>
         </div>
 
@@ -1081,7 +1368,7 @@
             </div>
         </div>
 
-        <div class="stats-panel">
+        <div class="stats-panel" id="statsPanel">
             <div class="stat-item">
                 <span>日工单价：</span>
                 <div class="stat-value">
@@ -1125,7 +1412,7 @@
                 <span>合计总额：</span>
                 <div class="stat-value">
                     <span id="netIncome">0.00</span> 元
-            </div>
+                </div>
             </div>
         </div>
 
@@ -1162,9 +1449,9 @@
                     <li>记录每日工作状态（全天、半天、休息）</li>
                     <li>记录工作地点和生活费用</li>
                     <li>按月、自定义日期或列表模式计算工资</li>
+                    <li>可视化收入分析</li>
                     <li>完全支持离线使用</li>
                     <li>数据自动保存在本地</li>
-                    <li>新增数据备份和恢复功能</li>
                 </ul>
                 <div class="confirm-buttons">
                     <button class="confirm-ok" onclick="hideAboutModal()">确定</button>
@@ -1175,49 +1462,41 @@
         <div class="modal-overlay" id="instructionsModal">
             <div class="instructions-modal">
                 <h2>操作说明</h2>
-                
-                <h3>日历操作</h3>
-                <ul>
-                    <li>点击日历日期选择工作状态：全天、半天或休息</li>
-                    <li>左右滑动日历可切换月份</li>
-                    <li>今日日期以蓝色高亮显示</li>
-                </ul>
-                
-                <h3>记录信息</h3>
-                <ul>
-                    <li>设置工作状态后，可输入工作地点和当天生活费</li>
-                    <li>全天：工作满一天，计1天工资</li>
-                    <li>半天：工作半天，计0.5天工资</li>
-                    <li>休息：不工作，不计工资</li>
-                </ul>
-                
-                <h3>费用管理</h3>
-                <ul>
-                    <li>点击日工单价可修改每日工资标准</li>
-                    <li>点击"+"按钮可添加自定义费用（如支取、借款等）</li>
-                    <li>自定义费用支持正负值（收入/支出）</li>
-                </ul>
-                
-                <h3>视图模式</h3>
-                <ul>
-                    <li>日历模式：直观查看当月工作状态</li>
-                    <li>列表模式：详细查看每日记录数据</li>
-                    <li>在自定义日期模式下，支持展开更多记录</li>
-                </ul>
-                
-                <h3>数据安全</h3>
-                <ul>
-                    <li>所有数据自动保存在本地浏览器中</li>
-                    <li>每次保存时会自动创建数据备份</li>
-                    <li>在系统菜单中选择"撤销"可恢复上一步操作</li>
-                    <li>支持数据导出/导入</li>
-                    <li>清除浏览器缓存会删除所有数据</li>
-                </ul>
-                
-                <div class="tip">
-                    <strong>提示：</strong> 定期使用"导出数据"功能备份数据，以防意外情况发生。
+                <div class="instructions-content">
+                    <h3>日历操作</h3>
+                    <ul>
+                        <li>点击日历日期选择工作状态：全天、半天或休息</li>
+                        <li>左右滑动日历可切换月份</li>
+                        <li>今日日期以蓝色高亮显示</li>
+                    </ul>
+                    
+                    <h3>记录信息</h3>
+                    <ul>
+                        <li>设置工作状态后，可输入工作地点和当天生活费</li>
+                        <li>全天：工作满一天，计1天工资</li>
+                        <li>半天：工作半天，计0.5天工资</li>
+                        <li>休息：不工作，不计工资</li>
+                    </ul>
+                    
+                    <h3>收入统计</h3> <!-- 修改标题 -->
+                    <ul>
+                        <li>按月模式：显示当前年份各月收入统计</li>
+                        <li>自定义模式：显示日期范围内各月收入统计</li>
+                        <li>支持柱状图、折线图和饼图三种视图</li>
+                        <li>图表下方显示总收入金额</li>
+                    </ul>
+                    
+                    <h3>视图切换</h3>
+                    <ul>
+                        <li>在统计模式下点击其他模式按钮，将返回之前的视图</li>
+                        <li>日历模式：直观查看当月工作状态</li>
+                        <li>列表模式：详细查看每日记录数据</li>
+                    </ul>
+                    
+                    <div class="tip">
+                        <strong>提示：</strong> 统计图表功能需要联网使用，离线时无法加载图表资源。
+                    </div>
                 </div>
-                
                 <div class="confirm-buttons">
                     <button class="confirm-ok" onclick="hideInstructionsModal()">确定</button>
                 </div>
@@ -1287,6 +1566,10 @@
         let touchStartTime = 0;
         let currentViewMode = 'calendar';
         let enableTransition = false;
+        let currentChartType = 'bar';
+        let statsChart = null;
+        let preStatsMode = null; // 进入统计模式前的模式
+        let preStatsView = null; // 进入统计模式前的视图
         
         // 列表分页变量
         let listItemsToShow = 30;
@@ -1303,6 +1586,11 @@
         const menuOverlay = document.getElementById('menuOverlay');
         const feedbackToast = document.getElementById('feedbackToast');
         const viewToggleBtn = document.getElementById('viewToggleBtn');
+        
+        // 新添加的DOM元素
+        const monthDisplay = document.getElementById('monthDisplay');
+        const startDateDisplay = document.getElementById('startDateDisplay');
+        const endDateDisplay = document.getElementById('endDateDisplay');
 
         // 显示操作反馈
         function showFeedback(message) {
@@ -1341,6 +1629,12 @@
                     const { startDate, endDate } = JSON.parse(savedRange);
                     document.getElementById('startDate').value = startDate;
                     document.getElementById('endDate').value = endDate;
+                    
+                    // 更新显示
+                    startDateDisplay.textContent = formatCustomDate(new Date(startDate));
+                    endDateDisplay.textContent = formatCustomDate(new Date(endDate));
+                } else {
+                    setCustomDateRangeToCurrentMonth();
                 }
                 
                 // 初始化时保存初始状态到历史记录
@@ -1349,11 +1643,30 @@
                 // 重要修复：在数据加载完成后立即计算统计数据
                 calculateStats();
                 renderCustomExpenses();
+                
+                // 更新月份显示
+                updateMonthDisplay();
             } catch (e) {
                 console.error('数据初始化失败:', e);
                 records = {};
                 customExpenses = [];
             }
+        }
+        
+        // 更新月份显示
+        function updateMonthDisplay() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            monthDisplay.textContent = `${year}年${month}月`;
+        }
+        
+        // 格式化自定义日期显示 - 修改为"yyyy年mm月dd日"格式
+        function formatCustomDate(date) {
+            if (!date) return '选择日期';
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
         }
         
         // 保存当前状态到历史记录
@@ -1448,6 +1761,10 @@
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             localStorage.setItem('customDateRange', JSON.stringify({ startDate, endDate }));
+            
+            // 更新显示
+            startDateDisplay.textContent = formatCustomDate(new Date(startDate));
+            endDateDisplay.textContent = formatCustomDate(new Date(endDate));
         }
 
         // 初始化
@@ -1469,6 +1786,7 @@
                 currentDate = new Date(year, month-1);
                 generateCalendar(year, month-1);
                 updateDateDisplay();
+                updateMonthDisplay();
                 calculateStats();
                 renderCustomExpenses();
                 
@@ -1635,6 +1953,10 @@
 
             document.getElementById('startDate').valueAsDate = startOfMonth;
             document.getElementById('endDate').valueAsDate = endOfMonth;
+            
+            // 更新显示
+            startDateDisplay.textContent = formatCustomDate(startOfMonth);
+            endDateDisplay.textContent = formatCustomDate(endOfMonth);
         }
 
         // 更新日期显示
@@ -1642,7 +1964,8 @@
             const dateDisplay = document.getElementById('dateDisplay');
             const activeModeBtn = document.querySelector('.mode-btn.active');
             const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
+                         activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
 
             if (mode === 'month') {
                 const year = currentDate.getFullYear();
@@ -1657,7 +1980,10 @@
             } else if (mode === 'custom') {
                 const startStr = document.getElementById('startDate').value;
                 const endStr = document.getElementById('endDate').value;
-                dateDisplay.textContent = `${startStr} 至 ${endStr}`;
+                dateDisplay.textContent = `${formatCustomDate(new Date(startStr))} 至 ${formatCustomDate(new Date(endStr))}`;
+            } else if (mode === 'stats') {
+                // 统计模式下不显示日期信息
+                dateDisplay.innerHTML = '<div style="text-align:center;color:#666;">收入统计图表</div>';
             } else {
                 // 列表模式下显示与日历模式相同的日期信息
                 const activeMode = document.querySelector('.mode-btn.active').getAttribute('onclick').match(/'(\w+)'/)[1];
@@ -1668,7 +1994,7 @@
                 } else {
                     const startStr = document.getElementById('startDate').value;
                     const endStr = document.getElementById('endDate').value;
-                    dateDisplay.textContent = `${startStr} 至 ${endStr}`;
+                    dateDisplay.textContent = `${formatCustomDate(new Date(startStr))} 至 ${formatCustomDate(new Date(endStr))}`;
                 }
             }
         }
@@ -1793,7 +2119,8 @@
             // 获取当前激活的模式
             const activeModeBtn = document.querySelector('.mode-btn.active');
             const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
+                         activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
             
             let expensesToShow = [];
             
@@ -1801,7 +2128,7 @@
                 // 按月模式：只显示当前月份的自定义费用
                 const currentMonthKey = getCurrentMonthKey();
                 expensesToShow = customExpenses.filter(expense => expense.monthKey === currentMonthKey);
-            } else {
+            } else if (mode === 'custom') {
                 // 自定义模式：显示在自定义日期范围内的所有月份的费用
                 try {
                     const startStr = document.getElementById('startDate').value;
@@ -1834,6 +2161,9 @@
                 } catch (e) {
                     console.error('日期解析错误:', e);
                 }
+            } else if (mode === 'stats') {
+                // 统计模式不显示自定义费用
+                return;
             }
             
             // 渲染费用项
@@ -1862,7 +2192,8 @@
             try {
                 const activeModeBtn = document.querySelector('.mode-btn.active');
                 const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                             activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+                             activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
+                             activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
 
                 if (mode === 'month') {
                     const year = currentDate.getFullYear();
@@ -1887,7 +2218,7 @@
                     startDate = new Date(startParts[0], startParts[1]-1, startParts[2]);
                     endDate = new Date(endParts[0], endParts[1]-1, endParts[2], 23, 59, 59, 999);
                 } else {
-                    // 列表模式下，我们使用与日历模式相同的逻辑？实际上列表模式不应该触发calculateStats？但为了安全，我们按月份模式处理
+                    // 其他模式下，我们使用与日历模式相同的逻辑
                     const year = currentDate.getFullYear();
                     const month = currentDate.getMonth();
                     startDate = new Date(year, month, 1);
@@ -1921,7 +2252,8 @@
             let customTotal = 0;
             const activeModeBtn = document.querySelector('.mode-btn.active');
             const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
-                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'list';
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 
+                         activeModeBtn.getAttribute('onclick').includes('stats') ? 'stats' : 'list';
             
             if (mode === 'month') {
                 // 按月模式：只计算当前月份的自定义费用
@@ -1929,7 +2261,7 @@
                 customTotal = customExpenses
                     .filter(expense => expense.monthKey === currentMonthKey)
                     .reduce((sum, item) => sum + item.amount, 0);
-            } else {
+            } else if (mode === 'custom') {
                 // 自定义日期模式：计算日期范围内所有月份的自定义费用
                 const startMonth = new Date(startDate);
                 const endMonth = new Date(endDate);
@@ -1951,6 +2283,9 @@
                     .filter(expense => uniqueMonths.includes(expense.monthKey))
                     .reduce((sum, item) => sum + item.amount, 0);
             }
+            
+            // 统计模式下不显示自定义费用
+            if (mode === 'stats') customTotal = 0;
 
             const displayDays = workDays % 1 === 0 ? workDays : workDays.toFixed(1);
             const totalSalary = workDays * dailyWage;
@@ -1994,16 +2329,44 @@
         }
 
         function switchMode(mode) {
+            // 记录当前激活的模式和视图
+            const prevActiveMode = document.querySelector('.mode-btn.active').getAttribute('onclick').match(/'(\w+)'/)[1];
+            const prevView = currentViewMode;
+            
+            // 如果点击的是当前已经激活的模式，并且是统计模式，则刷新图表
+            if (mode === 'stats' && currentViewMode === 'stats') {
+                renderStatsChart();
+                return; // 直接返回，不再执行后面的代码
+            }
+            
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('monthControl').style.display = mode === 'month' ? 'grid' : 'none';
-            document.getElementById('customControl').style.display = mode === 'custom' ? 'grid' : 'none';
+            document.getElementById('monthControl').style.display = mode === 'month' ? 'flex' : 'none';
+            document.getElementById('customControl').style.display = mode === 'custom' ? 'flex' : 'none';
+            document.getElementById('calendarContainer').style.display = mode === 'stats' ? 'none' : 'block';
+            document.getElementById('listContainer').style.display = 'none';
+            document.getElementById('statsContainer').style.display = mode === 'stats' ? 'block' : 'none';
+            document.getElementById('statsPanel').style.display = mode === 'stats' ? 'none' : 'block';
             document.querySelector(`button[onclick="switchMode('${mode}')"]`).classList.add('active');
             
-            // 更新视图
-            if (currentViewMode === 'list') {
-                renderListMode();
+            // 更新视图模式
+            if (mode === 'list') {
+                currentViewMode = 'list';
+            } else if (mode === 'stats') {
+                currentViewMode = 'stats';
             } else {
-                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                currentViewMode = 'calendar';
+            }
+            
+            // 如果是切换到统计模式，记录进入前的模式和视图
+            if (mode === 'stats') {
+                preStatsMode = prevActiveMode;
+                preStatsView = prevView;
+                renderStatsChart();
+            } else {
+                // 其他模式，生成日历（如果是日历模式）或更新
+                if (mode === 'month' || mode === 'custom') {
+                    generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+                }
             }
             
             // 自定义模式时设置日期为当月1号至最后一天
@@ -2014,6 +2377,10 @@
                     const { startDate, endDate } = JSON.parse(savedRange);
                     document.getElementById('startDate').value = startDate;
                     document.getElementById('endDate').value = endDate;
+                    
+                    // 更新显示
+                    startDateDisplay.textContent = formatCustomDate(new Date(startDate));
+                    endDateDisplay.textContent = formatCustomDate(new Date(endDate));
                 } else {
                     setCustomDateRangeToCurrentMonth();
                 }
@@ -2022,25 +2389,46 @@
             updateDateDisplay();
             calculateStats();
             renderCustomExpenses();
-            showFeedback(`已切换到${mode === 'month' ? '按月计算' : mode === 'custom' ? '自定义日期计算' : '列表模式'}模式`);
+            showFeedback(`已切换到${mode === 'month' ? '按月计算' : mode === 'custom' ? '自定义日期计算' : mode === 'list' ? '列表模式' : '收入统计'}`);
         }
         
         // 切换视图模式（日历/列表）
         function toggleViewMode() {
+            // 如果当前是统计模式，则切换到之前的状态
+            if (currentViewMode === 'stats') {
+                // 先切换到之前的模式
+                switchMode(preStatsMode);
+                
+                // 然后切换到列表模式
+                document.getElementById('calendarContainer').style.display = 'none';
+                document.getElementById('listContainer').style.display = 'block';
+                currentViewMode = 'list';
+                viewToggleBtn.textContent = '日历模式';
+                renderListMode();
+                return;
+            }
+            
             const calendarContainer = document.getElementById('calendarContainer');
             const listContainer = document.getElementById('listContainer');
+            const statsContainer = document.getElementById('statsContainer');
             
             if (currentViewMode === 'calendar') {
                 // 切换到列表模式
                 calendarContainer.style.display = 'none';
-                listContainer.classList.add('active');
-                renderListMode();
+                listContainer.style.display = 'block';
                 currentViewMode = 'list';
                 viewToggleBtn.textContent = '日历模式';
-            } else {
+                renderListMode();
+            } else if (currentViewMode === 'list') {
                 // 切换回日历模式
                 calendarContainer.style.display = 'block';
-                listContainer.classList.remove('active');
+                listContainer.style.display = 'none';
+                currentViewMode = 'calendar';
+                viewToggleBtn.textContent = '列表模式';
+            } else {
+                // 统计模式切换到日历模式
+                statsContainer.style.display = 'none';
+                calendarContainer.style.display = 'block';
                 currentViewMode = 'calendar';
                 viewToggleBtn.textContent = '列表模式';
             }
@@ -2305,6 +2693,7 @@
             generateCalendar(year, month);
             document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
             updateDateDisplay();
+            updateMonthDisplay();
             calculateStats();
             renderCustomExpenses();
             
@@ -2322,6 +2711,7 @@
             generateCalendar(year, month);
             document.getElementById('currentMonth').value = `${year}-${pad(month+1)}`;
             updateDateDisplay();
+            updateMonthDisplay();
             calculateStats();
             renderCustomExpenses();
             
@@ -2462,6 +2852,308 @@
             input.click();
             closeMenu();
         }
+        
+        // 渲染统计图表
+        function renderStatsChart() {
+            const canvas = document.getElementById('statsChart');
+            const ctx = canvas.getContext('2d');
+            const offlineAlert = document.getElementById('chartOfflineAlert');
+            
+            // 检查网络状态
+            if (!navigator.onLine) {
+                offlineAlert.classList.add('active');
+                canvas.style.display = 'none';
+                return;
+            } else {
+                offlineAlert.classList.remove('active');
+                canvas.style.display = 'block';
+            }
+            
+            // 清除之前的图表
+            if (statsChart) {
+                statsChart.destroy();
+            }
+            
+            // 获取当前激活的模式
+            const activeModeBtn = document.querySelector('.mode-btn.active');
+            const mode = activeModeBtn.getAttribute('onclick').includes('month') ? 'month' : 
+                         activeModeBtn.getAttribute('onclick').includes('custom') ? 'custom' : 'stats';
+            
+            let labels = [];
+            let data = [];
+            let dailyWage = parseFloat(document.getElementById('dailyWageDisplay').textContent.replace('元', '')) || 0;
+            let title = '月度收入统计';
+            let subtitle = '';
+            let totalIncome = 0;
+            
+            // 按月模式：获取当前年份的所有月份工资
+            if (preStatsMode === 'month') {
+                const year = currentDate.getFullYear();
+                title = `${year}年收入分析`;
+                subtitle = '每月收入总额';
+                
+                // 修改总收入标题为"年收入"
+                document.getElementById('incomeTitle').textContent = '年收入';
+                
+                // 计算每个月的工资
+                for (let month = 0; month < 12; month++) {
+                    const monthStart = new Date(year, month, 1);
+                    const monthEnd = new Date(year, month + 1, 0);
+                    monthEnd.setHours(23, 59, 59, 999);
+                    
+                    let workDays = 0;
+                    
+                    // 计算当月工作天数
+                    Object.entries(records).forEach(([dateKey, record]) => {
+                        const parts = dateKey.split('-');
+                        if (parts.length !== 3) return;
+                        
+                        const date = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+                        if (date >= monthStart && date <= monthEnd) {
+                            if (record.status === 'full') workDays += 1;
+                            else if (record.status === 'half') workDays += 0.5;
+                        }
+                    });
+                    
+                    const monthIncome = workDays * dailyWage;
+                    labels.push(`${month + 1}月`);
+                    data.push(monthIncome);
+                    totalIncome += monthIncome;
+                }
+            } 
+            // 自定义模式：获取自定义日期范围内的所有月份工资
+            else if (preStatsMode === 'custom') {
+                const startStr = document.getElementById('startDate').value;
+                const endStr = document.getElementById('endDate').value;
+                
+                if (!startStr || !endStr) {
+                    showFeedback('请先设置日期范围');
+                    return;
+                }
+                
+                const startDate = new Date(startStr);
+                const endDate = new Date(endStr);
+                endDate.setHours(23, 59, 59, 999);
+                
+                // 修改标题格式为"yyyy年mm月dd日"
+                title = `${formatCustomDate(new Date(startStr))} - ${formatCustomDate(new Date(endStr))}`;
+                subtitle = '日期范围内收入统计';
+                
+                // 恢复总收入标题为"总收入"
+                document.getElementById('incomeTitle').textContent = '总收入';
+                
+                // 获取日期范围内的所有月份
+                const months = [];
+                let current = new Date(startDate);
+                current.setDate(1);
+                
+                while (current <= endDate) {
+                    const monthKey = `${current.getFullYear()}-${pad(current.getMonth() + 1)}`;
+                    if (!months.includes(monthKey)) {
+                        months.push(monthKey);
+                    }
+                    current.setMonth(current.getMonth() + 1);
+                }
+                
+                // 计算每个月的工资
+                months.forEach(monthKey => {
+                    const [year, month] = monthKey.split('-').map(Number);
+                    const monthStart = new Date(year, month - 1, 1);
+                    const monthEnd = new Date(year, month, 0);
+                    monthEnd.setHours(23, 59, 59, 999);
+                    
+                    let workDays = 0;
+                    
+                    // 计算当月工作天数
+                    Object.entries(records).forEach(([dateKey, record]) => {
+                        const parts = dateKey.split('-');
+                        if (parts.length !== 3) return;
+                        
+                        const date = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+                        if (date >= monthStart && date <= monthEnd) {
+                            if (record.status === 'full') workDays += 1;
+                            else if (record.status === 'half') workDays += 0.5;
+                        }
+                    });
+                    
+                    const monthIncome = workDays * dailyWage;
+                    labels.push(`${month}月`); // 只显示月份
+                    data.push(monthIncome);
+                    totalIncome += monthIncome;
+                });
+            }
+            
+            // 更新标题
+            document.getElementById('chartTitle').textContent = title;
+            document.getElementById('chartSubtitle').textContent = subtitle;
+            document.getElementById('totalIncomeAmount').textContent = totalIncome.toFixed(2) + " 元";
+            
+            // 更新统计信息
+            const statsInfo = document.getElementById('statsInfo');
+            if (preStatsMode === 'month') {
+                statsInfo.textContent = `${currentDate.getFullYear()}年收入统计`;
+            } else {
+                statsInfo.textContent = `${formatCustomDate(new Date(document.getElementById('startDate').value))} 至 ${formatCustomDate(new Date(document.getElementById('endDate').value))}`;
+            }
+            
+            // 如果没有数据，显示提示信息
+            if (data.length === 0 || totalIncome === 0) {
+                labels = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                for (let i = 0; i < 12; i++) {
+                    data.push(0);
+                }
+                document.getElementById('totalIncomeAmount').textContent = "0.00 元";
+                statsInfo.textContent = "暂无记录数据";
+            }
+            
+            // 设置图表数据
+            const chartData = {
+                labels: labels,
+                datasets: [{
+                    label: '收入总额 (元)',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(255, 205, 86, 0.7)',
+                        'rgba(101, 203, 25, 0.7)',
+                        'rgba(201, 203, 207, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(255, 159, 64, 0.7)',
+                        'rgba(153, 102, 255, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 205, 86, 1)',
+                        'rgba(101, 203, 25, 1)',
+                        'rgba(201, 203, 207, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 159, 64, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1,
+                    pointHitRadius: 15 // 增加点点击区域大小
+                }]
+            };
+            
+            // 图表配置
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `收入: ${context.parsed.y.toFixed(2)}元`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return value + '元';
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000,
+                    easing: 'easeOutQuart'
+                }
+            };
+            
+            // 根据当前图表类型创建图表
+            if (currentChartType === 'bar') {
+                statsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: chartOptions
+                });
+            } else if (currentChartType === 'line') {
+                statsChart = new Chart(ctx, {
+                    type: 'line',
+                    data: chartData,
+                    options: chartOptions
+                });
+            } else if (currentChartType === 'pie') {
+                // 饼图特殊配置 - 显示金额和百分比
+                statsChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: chartData,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false, // 隐藏图例
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true, // 使用圆形标识
+                                    boxWidth: 10,
+                                    padding: 15,
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value.toFixed(2)}元 (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        layout: {
+                            padding: {
+                                top: 20,
+                                bottom: 20
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // 切换图表类型
+        function changeChartType(type) {
+            currentChartType = type;
+            
+            // 更新按钮状态
+            document.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 重新渲染图表
+            renderStatsChart();
+        }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
