@@ -37,71 +37,12 @@
                          url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23f0f2f5"/><path d="M0 50 L100 50 M50 0 L50 100" stroke="%23e0e0e0" stroke-width="0.5"/></svg>');
             background-size: 30px 30px;
             line-height: 1.3;
-            position: relative;
-            min-height: 100vh;
         }
 
-        /* 加载指示器 */
-        #loadingOverlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.9);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            transition: opacity 0.5s;
-        }
-        
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 5px solid var(--primary-color);
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            animation: rotation 1s linear infinite;
-        }
-        
-        @keyframes rotation {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            margin-top: 20px;
-            font-size: 16px;
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-        
-        /* 离线指示器 */
-        #offlineAlert {
-            display: none;
-            background: #ff4444;
-            color: white;
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            font-size: 14px;
-            animation: fadeIn 0.5s ease;
-        }
-        
         .container {
             max-width: 600px;
             margin: 0 auto;
             padding-bottom: 20px;
-            opacity: 0;
-            transition: opacity 0.5s;
-        }
-        
-        .container.active {
-            opacity: 1;
         }
 
         .header-container {
@@ -176,7 +117,7 @@
         }
 
         .mode-btn {
-            padding: 4px 3px;
+            padding: 4px 3px; /* 进一步缩小按钮 */
             border: none;
             border-radius: 8px;
             background: #e0e0e0;
@@ -190,7 +131,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            min-height: 28px;
+            min-height: 28px; /* 进一步缩小高度 */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -218,28 +159,28 @@
             justify-content: center;
         }
 
-        /* 重新设计的日期选择器 */
+        /* 重新设计的日期选择器 - 高度优化 */
         .date-picker {
             display: flex;
             align-items: center;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            padding: 1px;
+            padding: 1px; /* 减小内边距 */
             max-width: 95%;
             position: relative;
-            border: 1px solid var(--primary-color);
-            margin: 0 auto;
-            height: 26px;
+            border: 1px solid var(--primary-color); /* 蓝色边框 */
+            margin: 0 auto; /* 确保居中 */
+            height: 26px; /* 缩小高度20% (原32px -> 26px) */
         }
 
         .month-picker {
             width: 160px;
             text-align: center;
-            font-size: 14px;
+            font-size: 14px; /* 字体缩小 */
             font-weight: 500;
             color: #333;
-            padding: 0 10px;
+            padding: 0 10px; /* 调整内边距 */
             cursor: pointer;
             border-radius: 6px;
             transition: all 0.2s;
@@ -258,16 +199,16 @@
             align-items: center;
             width: 100%;
             height: 100%;
-            justify-content: center;
+            justify-content: center; /* 添加居中 */
             padding: 0 5px;
         }
 
         .date-input {
             flex: 1;
             text-align: center;
-            padding: 0 5px;
-            font-size: 13px;
-            font-weight: 500;
+            padding: 0 5px; /* 减小内边距 */
+            font-size: 13px; /* 统一字体大小 */
+            font-weight: 500; /* 统一字体粗细 */
             color: #333;
             cursor: pointer;
             border-radius: 6px;
@@ -280,7 +221,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; /* 统一字体 */
         }
 
         .date-input:hover {
@@ -708,6 +649,18 @@
             color: #333;
             min-width: 120px;
             text-align: center;
+        }
+
+        #offlineAlert {
+            display: none;
+            background: #ff4444;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            animation: fadeIn 0.5s ease;
         }
 
         .feedback-toast {
@@ -1209,11 +1162,11 @@
             justify-content: center;
             gap: 10px;
             margin-top: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 15px; /* 增加底部间距 */
         }
         
         .chart-btn {
-            padding: 8px 12px;
+            padding: 8px 12px; /* 增加垂直内边距 */
             background: #f0f2f5;
             border: none;
             border-radius: 20px;
@@ -1272,11 +1225,12 @@
             font-size: 12px;
             color: #666;
             margin-top: 5px;
-            margin-bottom: 5px;
+            margin-bottom: 5px; /* 增加行距 */
         }
         
         /* 修复列表模式显示问题 */
         .list-content-container {
+            /* 移除高度限制和滚动条 */
             overflow: visible;
         }
         
@@ -1309,13 +1263,41 @@
         .container {
             padding-bottom: 10px;
         }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--primary-color);
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+        }
+        
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <!-- 加载指示器 -->
-    <div id="loadingOverlay">
+    <div class="loading-overlay" id="loadingOverlay">
         <div class="loader"></div>
-        <div class="loading-text">加载中...</div>
     </div>
     
     <div class="container">
@@ -1622,6 +1604,7 @@
         let statsChart = null;
         let preStatsMode = null; // 进入统计模式前的模式
         let preStatsView = null; // 进入统计模式前的视图
+        let chartJsLoaded = false; // 标记Chart.js是否已加载
         
         // 列表分页变量
         let listItemsToShow = 30;
@@ -1639,11 +1622,9 @@
         const feedbackToast = document.getElementById('feedbackToast');
         const viewToggleBtn = document.getElementById('viewToggleBtn');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const container = document.querySelector('.container');
         
         // 显示操作反馈
         function showFeedback(message) {
-            if (!feedbackToast) return;
             feedbackToast.textContent = message;
             feedbackToast.classList.add('show');
             setTimeout(() => {
@@ -1697,30 +1678,46 @@
                 // 更新月份显示
                 updateMonthDisplay();
                 
-                // 生成日历
-                generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
-                
-                // 隐藏加载指示器
+                // 隐藏加载动画
                 setTimeout(() => {
-                    if (loadingOverlay) {
-                        loadingOverlay.style.opacity = '0';
-                        setTimeout(() => {
-                            loadingOverlay.style.display = 'none';
-                            container.classList.add('active');
-                        }, 500);
-                    }
-                }, 300);
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 300);
+                }, 500);
             } catch (e) {
                 console.error('数据初始化失败:', e);
                 records = {};
                 customExpenses = [];
-                
-                // 确保加载指示器隐藏
-                if (loadingOverlay) {
-                    loadingOverlay.style.display = 'none';
-                    container.classList.add('active');
-                }
+                loadingOverlay.style.display = 'none';
             }
+        }
+        
+        // 动态加载Chart.js
+        function loadChartLibrary() {
+            return new Promise((resolve, reject) => {
+                // 检查是否已加载
+                if (chartJsLoaded) {
+                    resolve();
+                    return;
+                }
+                
+                // 创建script标签
+                const script = document.createElement('script');
+                script.src = './assets/js/chart.umd.min.js';
+                script.onload = () => {
+                    chartJsLoaded = true;
+                    resolve();
+                    showFeedback('图表库加载完成');
+                };
+                script.onerror = () => {
+                    console.error('图表库加载失败');
+                    reject(new Error('图表库加载失败'));
+                };
+                
+                // 添加到文档
+                document.body.appendChild(script);
+            });
         }
         
         // 更新月份显示
@@ -1839,13 +1836,15 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            // 显示加载指示器
-            if (loadingOverlay) {
-                loadingOverlay.style.display = 'flex';
-            }
+            // 显示加载动画
+            loadingOverlay.style.display = 'flex';
             
             // 初始化数据
             initializeData();
+
+            // 生成日历和统计数据
+            generateCalendar(currentDate.getFullYear(), currentDate.getMonth());
+            updateDateDisplay();
 
             // 设置当前月份
             document.getElementById('currentMonth').value = 
@@ -1955,18 +1954,9 @@
         function registerServiceWorker() {
             if ('serviceWorker' in navigator) {
                 // 添加版本号参数确保更新
-                navigator.serviceWorker.register('./sw.js?v=3.0')
+                navigator.serviceWorker.register('./sw.js?v=2.0')
                     .then(registration => {
                         console.log('Service Worker 注册成功:', registration);
-                        
-                        // 检查更新
-                        registration.update();
-                        
-                        // 监听controllerchange事件
-                        navigator.serviceWorker.addEventListener('controllerchange', () => {
-                            console.log('Service Worker 已接管页面');
-                            window.location.reload();
-                        });
                     })
                     .catch(error => {
                         console.log('Service Worker 注册失败:', error);
@@ -2432,7 +2422,16 @@
                 renderListMode(); // 关键修复：确保列表模式被渲染
             } else if (mode === 'stats') {
                 currentViewMode = 'stats';
-                renderStatsChart(); // 关键修复：确保统计图表被渲染
+                // 延迟加载图表库
+                setTimeout(() => {
+                    if (!chartJsLoaded) {
+                        loadChartLibrary().then(() => {
+                            renderStatsChart();
+                        });
+                    } else {
+                        renderStatsChart();
+                    }
+                }, 300);
             } else {
                 currentViewMode = 'calendar';
             }
@@ -2441,7 +2440,6 @@
             if (mode === 'stats') {
                 preStatsMode = prevActiveMode;
                 preStatsView = prevView;
-                renderStatsChart();
             } else {
                 // 其他模式，生成日历（如果是日历模式）或更新
                 if (mode === 'month' || mode === 'custom') {
@@ -3230,45 +3228,6 @@
             // 重新渲染图表
             renderStatsChart();
         }
-// 页面脚本中注册Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(registration => {
-      // 监听更新消息
-      navigator.serviceWorker.addEventListener('message', event => {
-        if (event.data.type === 'UPDATE_AVAILABLE') {
-          console.log(`发现新版本: ${event.data.version}`);
-          // 可以在这里添加UI提示
-        }
-      });
-
-      // 检查是否有更新
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // 新版本就绪，提示用户
-            console.log('新版本已准备就绪，刷新页面即可使用');
-          }
-        });
-      });
-      
-      // 强制更新函数（可通过按钮触发）
-      window.forceUpdate = () => {
-        if (navigator.serviceWorker.controller) {
-          navigator.serviceWorker.controller.postMessage({ type: 'FORCE_UPDATE' });
-          location.reload();
-        }
-      };
-    });
-    
-  // 监听控制器变化
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    location.reload();
-  });
-}
-
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
