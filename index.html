@@ -3230,6 +3230,44 @@
             // 重新渲染图表
             renderStatsChart();
         }
+// 页面脚本中注册Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(registration => {
+      // 监听更新消息
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data.type === 'UPDATE_AVAILABLE') {
+          console.log(`发现新版本: ${event.data.version}`);
+          // 可以在这里添加UI提示
+        }
+      });
+
+      // 检查是否有更新
+      registration.addEventListener('updatefound', () => {
+        const newWorker = registration.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // 新版本就绪，提示用户
+            console.log('新版本已准备就绪，刷新页面即可使用');
+          }
+        });
+      });
+      
+      // 强制更新函数（可通过按钮触发）
+      window.forceUpdate = () => {
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'FORCE_UPDATE' });
+          location.reload();
+        }
+      };
+    });
+    
+  // 监听控制器变化
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    location.reload();
+  });
+}
+
     </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
