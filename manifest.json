@@ -1,23 +1,22 @@
+// manifest.json (添加到主屏幕的配置文件)
 {
   "name": "一键工达",
-  "short_name": "一键工达",
-  "start_url": "./index.html",
+  "short_name": "工达",
+  "description": "从记录到工资单，只需一键的距离",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#f0f2f5",
-  "theme_color": "#FF9800",
-  "description": "智能记录工作日，一键生成工资单。精准计算薪酬，让劳动价值清晰可见。",
-  "orientation": "portrait",
+  "background_color": "#2196F3",
+  "theme_color": "#2196F3",
   "icons": [
     {
-      "src": "./icon-192x192.png",
+      "src": "icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./icon-512x512.png",
+      "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "categories": ["finance", "productivity", "tools"]
+  ]
 }
